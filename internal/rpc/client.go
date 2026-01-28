@@ -78,13 +78,6 @@ func NewClientWithURL(url string, net Network) *Client {
 	}
 }
 
-// TransactionResponse contains the raw XDR fields needed for simulation
-type TransactionResponse struct {
-	EnvelopeXdr   string
-	ResultXdr     string
-	ResultMetaXdr string
-}
-
 // GetTransaction fetches the transaction details and full XDR data
 func (c *Client) GetTransaction(ctx context.Context, hash string) (*TransactionResponse, error) {
 	logger.Logger.Debug("Fetching transaction details", "hash", hash)
@@ -97,9 +90,5 @@ func (c *Client) GetTransaction(ctx context.Context, hash string) (*TransactionR
 
 	logger.Logger.Info("Transaction fetched successfully", "hash", hash, "envelope_size", len(tx.EnvelopeXdr))
 
-	return &TransactionResponse{
-		EnvelopeXdr:   tx.EnvelopeXdr,
-		ResultXdr:     tx.ResultXdr,
-		ResultMetaXdr: tx.ResultMetaXdr,
-	}, nil
+	return parseTransactionResponse(tx), nil
 }
