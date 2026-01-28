@@ -4,7 +4,6 @@
 
 # Check for license headers in Go and Rust files
 # Exit with status 1 if any files are missing headers
-
 set -e
 
 MISSING_HEADERS=0
