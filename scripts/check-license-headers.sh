@@ -14,7 +14,7 @@ echo "🔍 Checking for license headers in Go and Rust files..."
 
 # Check Go files
 echo ""
-echo "📝 Checking Go files (.go)..."
+echo "Checking Go files (.go)..."
 while IFS= read -r file; do
     if ! head -1 "$file" | grep -q "$EXPECTED_HEADER"; then
         echo "  ❌ Missing license header: $file"
@@ -26,7 +26,7 @@ done < <(find . -name "*.go" -type f)
 
 # Check Rust files
 echo ""
-echo "📝 Checking Rust files (.rs)..."
+echo "Checking Rust files (.rs)..."
 while IFS= read -r file; do
     if ! head -1 "$file" | grep -q "$EXPECTED_HEADER"; then
         echo "  ❌ Missing license header: $file"
