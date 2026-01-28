@@ -254,7 +254,6 @@ fn main() {
         }
     }
 
-    // Capture Diagnostic Events
     let events = match host.get_events() {
         Ok(evs) => {
             let mut categorized_events = Vec::new();

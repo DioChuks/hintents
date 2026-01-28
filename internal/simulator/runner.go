@@ -61,14 +61,12 @@ func (r *Runner) Run(req *SimulationRequest) (*SimulationResponse, error) {
 
 	logger.Logger.Debug("Simulation request marshaled", "input_size", len(inputBytes))
 
-	// Prepare Command
 	cmd := exec.Command(r.BinaryPath)
 	cmd.Stdin = bytes.NewReader(inputBytes)
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	// Execute
 	logger.Logger.Info("Executing simulator binary")
 	if err := cmd.Run(); err != nil {
 		logger.Logger.Error("Simulator execution failed", "error", err, "stderr", stderr.String())
@@ -77,7 +75,6 @@ func (r *Runner) Run(req *SimulationRequest) (*SimulationResponse, error) {
 
 	logger.Logger.Debug("Simulator execution completed", "stdout_size", stdout.Len(), "stderr_size", stderr.Len())
 
-	// Deserialize Response
 	var resp SimulationResponse
 	if err := json.Unmarshal(stdout.Bytes(), &resp); err != nil {
 		logger.Logger.Error("Failed to unmarshal simulation response", "error", err, "output", stdout.String())
