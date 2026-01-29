@@ -261,16 +261,14 @@ func writeTraceToFile(trace *TransactionTrace, filename string) error {
 		return fmt.Errorf("failed to write file: %w", err)
 	}
 
-	fmt.Printf("Generated %s (%.2f KB)
-", filename, float64(len(data))/1024)
+	fmt.Printf("Generated %s (%.2f KB)\n", filename, float64(len(data))/1024)
 	return nil
 }
 
 func main() {
 	// Create testdata directory if it doesn't exist
 	if err := os.MkdirAll("testdata", 0755); err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create testdata directory: %v
-", err)
+		fmt.Fprintf(os.Stderr, "Failed to create testdata directory: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -284,12 +282,10 @@ func main() {
 	for filename, trace := range traces {
 		fullPath := filepath.Join("testdata", filename)
 		if err := writeTraceToFile(trace, fullPath); err != nil {
-			fmt.Fprintf(os.Stderr, "Error generating %s: %v
-", filename, err)
+			fmt.Fprintf(os.Stderr, "Error generating %s: %v\n", filename, err)
 			os.Exit(1)
 		}
 	}
 
-	fmt.Println("
-All test traces generated successfully!")
+	fmt.Println("\nAll test traces generated successfully!")
 }

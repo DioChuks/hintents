@@ -19,7 +19,7 @@ func TestGetLedgerHeader_Integration_Testnet(t *testing.T) {
 		t.Skip("skipping integration test in short mode")
 	}
 
-	client := NewClient(Testnet)
+	client := NewClient(Testnet, "")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -66,7 +66,7 @@ func TestGetLedgerHeader_Integration_FutureLedger(t *testing.T) {
 		t.Skip("skipping integration test in short mode")
 	}
 
-	client := NewClient(Testnet)
+	client := NewClient(Testnet, "")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
@@ -99,7 +99,7 @@ func TestGetLedgerHeader_Integration_MultipleNetworks(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(string(tt.network), func(t *testing.T) {
-			client := NewClient(tt.network)
+			client := NewClient(tt.network, "")
 			ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 			defer cancel()
 
@@ -127,7 +127,7 @@ func TestGetLedgerHeader_Integration_RecentLedger(t *testing.T) {
 		t.Skip("skipping integration test in short mode")
 	}
 
-	client := NewClient(Testnet)
+	client := NewClient(Testnet, "")
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 

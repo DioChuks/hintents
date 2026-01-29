@@ -84,19 +84,13 @@ var cacheStatusCmd = &cobra.Command{
 			return fmt.Errorf("Error: failed to list cache files: %w", err)
 		}
 
-		fmt.Printf("Cache directory: %s
-", cacheDir)
-		fmt.Printf("Cache size: %s
-", formatBytes(size))
-		fmt.Printf("Files cached: %d
-", len(files))
-		fmt.Printf("Maximum size: %s
-", formatBytes(cache.DefaultConfig().MaxSizeBytes))
+		fmt.Printf("Cache directory: %s\n", cacheDir)
+		fmt.Printf("Cache size: %s\n", formatBytes(size))
+		fmt.Printf("Files cached: %d\n", len(files))
+		fmt.Printf("Maximum size: %s\n", formatBytes(cache.DefaultConfig().MaxSizeBytes))
 
 		if size > cache.DefaultConfig().MaxSizeBytes {
-			fmt.Printf("
-⚠️  Cache size exceeds maximum limit. Run 'erst cache clean' to free space.
-")
+			fmt.Printf("\n⚠️  Cache size exceeds maximum limit. Run 'erst cache clean' to free space.\n")
 		}
 
 		return nil
@@ -160,8 +154,7 @@ var cacheClearCmd = &cobra.Command{
 
 		// Get confirmation unless force flag is set
 		if !cacheForceFlag {
-			fmt.Printf("This will delete ALL cached files in %s
-", cacheDir)
+			fmt.Printf("This will delete ALL cached files in %s\n", cacheDir)
 			fmt.Print("Are you sure? (yes/no): ")
 			var response string
 			if _, err := fmt.Scanln(&response); err != nil {

@@ -146,11 +146,9 @@ func (vr *ValidationResult) ErrorsAsString() string {
 	if vr.Valid {
 		return ""
 	}
-	result := fmt.Sprintf("Validation failed (%d errors):
-", len(vr.Errors))
+	result := fmt.Sprintf("Validation failed (%d errors):\n", len(vr.Errors))
 	for _, err := range vr.Errors {
-		result += fmt.Sprintf("  [%s] %s
-", err.Field, err.Message)
+		result += fmt.Sprintf("  [%s] %s\n", err.Field, err.Message)
 	}
 	return result
 }

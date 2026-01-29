@@ -58,8 +58,7 @@ var exportCmd = &cobra.Command{
 			return fmt.Errorf("failed to save snapshot: %w", err)
 		}
 
-		fmt.Printf("Snapshot exported to %s (%d entries)
-", exportSnapshotFlag, len(snap.LedgerEntries))
+		fmt.Printf("Snapshot exported to %s (%d entries)\n", exportSnapshotFlag, len(snap.LedgerEntries))
 		return nil
 	},
 }

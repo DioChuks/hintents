@@ -73,12 +73,12 @@ type GetTraceResponse struct {
 func NewServer(config Config) (*Server, error) {
 	var client *stellarrpc.Client
 	if config.RPCURL != "" {
-		client = stellarrpc.NewClientWithURL(config.RPCURL, stellarrpc.Network(config.Network))
+		client = stellarrpc.NewClientWithURL(config.RPCURL, stellarrpc.Network(config.Network), "")
 	} else {
-		client = stellarrpc.NewClient(stellarrpc.Network(config.Network))
+		client = stellarrpc.NewClient(stellarrpc.Network(config.Network), "")
 	}
 
-	sim, err := simulator.NewRunner()
+	sim, err := simulator.NewRunner("", false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create simulator: %w", err)
 	}

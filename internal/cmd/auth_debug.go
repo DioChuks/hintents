@@ -51,9 +51,9 @@ Examples:
 	RunE: func(cmd *cobra.Command, args []string) error {
 		txHash := args[0]
 
-		client := rpc.NewClient(rpc.Network(authNetworkFlag))
+		client := rpc.NewClient(rpc.Network(authNetworkFlag), "")
 		if authRPCURLFlag != "" {
-			client = rpc.NewClientWithURL(authRPCURLFlag, rpc.Network(authNetworkFlag))
+			client = rpc.NewClientWithURL(authRPCURLFlag, rpc.Network(authNetworkFlag), "")
 		}
 
 		logger.Logger.Info("Fetching transaction for auth analysis", "tx_hash", txHash)
@@ -63,8 +63,7 @@ Examples:
 			return fmt.Errorf("failed to fetch transaction: %w", err)
 		}
 
-		fmt.Printf("Transaction Envelope: %d bytes
-", len(resp.EnvelopeXdr))
+		fmt.Printf("Transaction Envelope: %d bytes\n", len(resp.EnvelopeXdr))
 
 		config := authtrace.AuthTraceConfig{
 			TraceCustomContracts: true,
@@ -95,20 +94,16 @@ Examples:
 
 func printDetailedAnalysis(reporter *authtrace.DetailedReporter) {
 	metrics := reporter.SummaryMetrics()
-	fmt.Println("
---- SUMMARY METRICS ---")
+	fmt.Println("\n--- SUMMARY METRICS ---")
 	for key, value := range metrics {
-		fmt.Printf("%s: %v
-", key, value)
+		fmt.Printf("%s: %v\n", key, value)
 	}
 
 	missingKeys := reporter.IdentifyMissingKeys()
 	if len(missingKeys) > 0 {
-		fmt.Println("
---- MISSING SIGNATURES ---")
+		fmt.Println("\n--- MISSING SIGNATURES ---")
 		for _, signer := range missingKeys {
-			fmt.Printf("  - %s (required weight: %d)
-", signer.SignerKey, signer.Weight)
+			fmt.Printf("  - %s (required weight: %d)\n", signer.SignerKey, signer.Weight)
 		}
 	}
 }

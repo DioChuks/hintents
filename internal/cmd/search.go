@@ -76,29 +76,21 @@ Results are ordered by timestamp (most recent first) and limited by --limit flag
 			return nil
 		}
 
-		fmt.Printf("Found %d matching sessions:
-", len(sessions))
+		fmt.Printf("Found %d matching sessions:\n", len(sessions))
 		for _, s := range sessions {
 			fmt.Println("--------------------------------------------------")
-			fmt.Printf("ID: %d
-", s.ID)
-			fmt.Printf("Time: %s
-", s.Timestamp.Format("2006-01-02 15:04:05"))
-			fmt.Printf("Tx Hash: %s
-", s.TxHash)
-			fmt.Printf("Network: %s
-", s.Network)
-			fmt.Printf("Status: %s
-", s.Status)
+			fmt.Printf("ID: %d\n", s.ID)
+			fmt.Printf("Time: %s\n", s.Timestamp.Format("2006-01-02 15:04:05"))
+			fmt.Printf("Tx Hash: %s\n", s.TxHash)
+			fmt.Printf("Network: %s\n", s.Network)
+			fmt.Printf("Status: %s\n", s.Status)
 			if s.ErrorMsg != "" {
-				fmt.Printf("Error: %s
-", s.ErrorMsg)
+				fmt.Printf("Error: %s\n", s.ErrorMsg)
 			}
 			if len(s.Events) > 0 {
 				fmt.Println("Events:")
 				for _, e := range s.Events {
-					fmt.Printf("  - %s
-", e)
+					fmt.Printf("  - %s\n", e)
 				}
 			}
 		}

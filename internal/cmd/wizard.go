@@ -23,7 +23,7 @@ var wizardCmd = &cobra.Command{
 			return fmt.Errorf("account flag required: erst wizard --account <address>")
 		}
 
-		w := wizard.New(rpc.NewClient(rpc.Network(network)))
+		w := wizard.New(rpc.NewClient(rpc.Network(network), ""))
 		result, err := w.SelectTransaction(cmd.Context(), account)
 		if err != nil {
 			return err

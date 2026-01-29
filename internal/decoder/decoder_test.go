@@ -18,6 +18,7 @@ package decoder
 
 import (
 	"encoding/base64"
+	"strings"
 	"testing"
 
 	"github.com/stellar/go/xdr"
@@ -28,7 +29,7 @@ import (
 func createEvent(t *testing.T, fnName string, isCall bool, isReturn bool) string {
 	topics := []xdr.ScVal{}
 	fnSym := xdr.ScSymbol(fnName)
-	
+
 	if isCall {
 		callSym := xdr.ScSymbol("fn_call")
 		topics = append(topics, xdr.ScVal{Type: xdr.ScValTypeScvSymbol, Sym: &callSym})
@@ -82,17 +83,17 @@ func TestDecodeEvents(t *testing.T) {
 	nodeA := root.SubCalls[0]
 	assert.Equal(t, "A", nodeA.Function)
 	// Expecting 3 events: fn_call A, log_in_A, fn_return A
-	require.Len(t, nodeA.Events, 3) 
-	
-	assert.Equal(t, "A", nodeA.Events[0].Topics[1]) 
-	assert.Equal(t, "log_in_A", nodeA.Events[1].Topics[1]) 
-	assert.Equal(t, "A", nodeA.Events[2].Topics[1]) 
-	
+	require.Len(t, nodeA.Events, 3)
+
+	assert.Equal(t, "A", nodeA.Events[0].Topics[1])
+	assert.Equal(t, "log_in_A", nodeA.Events[1].Topics[1])
+	assert.Equal(t, "A", nodeA.Events[2].Topics[1])
+
 	require.Len(t, nodeA.SubCalls, 1)
 	nodeB := nodeA.SubCalls[0]
 	assert.Equal(t, "B", nodeB.Function)
 	// Expecting 3 events: fn_call B, log_in_B, fn_return B
-	assert.Len(t, nodeB.Events, 3) 
+	assert.Len(t, nodeB.Events, 3)
 }
 
 func TestUnbalanced(t *testing.T) {
@@ -114,12 +115,10 @@ func TestUnbalanced(t *testing.T) {
 	assert.Equal(t, "B", nodeB.Function)
 	// B has call event, but no return event
 	assert.Len(t, nodeB.Events, 1)
-	
+
 	// A should have call + return (no log)
 	assert.Len(t, nodeA.Events, 2)
-	"strings"
-	"testing"
-)
+}
 
 // TestDecodeEnvelope tests basic functionality and error cases
 func TestDecodeEnvelope(t *testing.T) {

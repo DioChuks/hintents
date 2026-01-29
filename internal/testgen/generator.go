@@ -129,8 +129,7 @@ func (g *TestGenerator) GenerateGoTest(data *TestData) error {
 		return fmt.Errorf("failed to execute Go template: %w", err)
 	}
 
-	fmt.Printf("Generated Go test: %s
-", filename)
+	fmt.Printf("Generated Go test: %s\n", filename)
 	return nil
 }
 
@@ -160,8 +159,7 @@ func (g *TestGenerator) GenerateRustTest(data *TestData) error {
 		return fmt.Errorf("failed to execute Rust template: %w", err)
 	}
 
-	fmt.Printf("Generated Rust test: %s
-", filename)
+	fmt.Printf("Generated Rust test: %s\n", filename)
 	return nil
 }
 

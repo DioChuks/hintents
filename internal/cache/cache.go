@@ -226,21 +226,17 @@ func (m *Manager) Clean(force bool) (*CleanupStatus, error) {
 	originalSizeStr := formatBytes(originalSize)
 
 	if originalSize == 0 {
-		fmt.Printf("Cache is empty (0 B)
-")
+		fmt.Printf("Cache is empty (0 B)\n")
 		status.FinalSize = 0
 		return status, nil
 	}
 
 	// Show warning and get confirmation
-	fmt.Printf("Cache size: %s
-", originalSizeStr)
-	fmt.Printf("Maximum size: %s
-", formatBytes(m.config.MaxSizeBytes))
+	fmt.Printf("Cache size: %s\n", originalSizeStr)
+	fmt.Printf("Maximum size: %s\n", formatBytes(m.config.MaxSizeBytes))
 
 	if !force {
-		fmt.Print("
-This will delete the oldest cached files. Continue? (yes/no): ")
+		fmt.Print("\nThis will delete the oldest cached files. Continue? (yes/no): ")
 		var response string
 		if _, err := fmt.Scanln(&response); err != nil {
 			return status, fmt.Errorf("failed to read input: %w", err)
@@ -252,8 +248,7 @@ This will delete the oldest cached files. Continue? (yes/no): ")
 		}
 	}
 
-	fmt.Println("
-Cleaning cache (Least Recently Used files first)...")
+	fmt.Println("\nCleaning cache (Least Recently Used files first)...")
 
 	// Get list of cached files
 	files, err := m.ListCachedFiles()
@@ -296,15 +291,10 @@ Cleaning cache (Least Recently Used files first)...")
 	status.FinalSize = currentSize
 
 	// Print summary
-	fmt.Printf("
-Cleanup complete!
-")
-	fmt.Printf("Files deleted: %d
-", status.FilesDeleted)
-	fmt.Printf("Space freed: %s
-", formatBytes(status.SpaceFreed))
-	fmt.Printf("Final cache size: %s
-", formatBytes(status.FinalSize))
+	fmt.Printf("\nCleanup complete!\n")
+	fmt.Printf("Files deleted: %d\n", status.FilesDeleted)
+	fmt.Printf("Space freed: %s\n", formatBytes(status.SpaceFreed))
+	fmt.Printf("Final cache size: %s\n", formatBytes(status.FinalSize))
 
 	return status, nil
 }

@@ -221,8 +221,7 @@ func TestOptOut(t *testing.T) {
 		tmpDir := t.TempDir()
 		configPath := filepath.Join(tmpDir, "config.yaml")
 
-		configContent := "check_for_updates: false
-"
+		configContent := "check_for_updates: false\n"
 		err := os.WriteFile(configPath, []byte(configContent), 0644)
 		require.NoError(t, err)
 
@@ -237,8 +236,7 @@ func TestOptOut(t *testing.T) {
 		tmpDir := t.TempDir()
 		configPath := filepath.Join(tmpDir, "config.yaml")
 
-		configContent := "check_for_updates: true
-"
+		configContent := "check_for_updates: true\n"
 		err := os.WriteFile(configPath, []byte(configContent), 0644)
 		require.NoError(t, err)
 
@@ -264,8 +262,7 @@ func TestOptOut(t *testing.T) {
 		tmpDir := t.TempDir()
 		configPath := filepath.Join(tmpDir, "config.yaml")
 
-		configContent := "check_for_updates: true
-"
+		configContent := "check_for_updates: true\n"
 		err := os.WriteFile(configPath, []byte(configContent), 0644)
 		require.NoError(t, err)
 

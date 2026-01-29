@@ -26,15 +26,15 @@ import (
 
 // SimulationRequest is the JSON object passed to the Rust binary via Stdin
 type SimulationRequest struct {
-	EnvelopeXdr    string            `json:"envelope_xdr"`
-	ResultMetaXdr  string            `json:"result_meta_xdr"`
-	LedgerEntries  map[string]string `json:"ledger_entries,omitempty"`
-	Timestamp      int64             `json:"timestamp,omitempty"`
-	LedgerSequence uint32            `json:"ledger_sequence,omitempty"`
-	WasmPath       *string           `json:"wasm_path,omitempty"`
-	MockArgs       *[]string         `json:"mock_args,omitempty"`
-	Profile        bool              `json:"profile,omitempty"`
-	ProtocolVersion *uint32          `json:"protocol_version,omitempty"`
+	EnvelopeXdr     string            `json:"envelope_xdr"`
+	ResultMetaXdr   string            `json:"result_meta_xdr"`
+	LedgerEntries   map[string]string `json:"ledger_entries,omitempty"`
+	Timestamp       int64             `json:"timestamp,omitempty"`
+	LedgerSequence  uint32            `json:"ledger_sequence,omitempty"`
+	WasmPath        *string           `json:"wasm_path,omitempty"`
+	MockArgs        *[]string         `json:"mock_args,omitempty"`
+	Profile         bool              `json:"profile,omitempty"`
+	ProtocolVersion *uint32           `json:"protocol_version,omitempty"`
 
 	AuthTraceOpts *AuthTraceOptions      `json:"auth_trace_opts,omitempty"`
 	CustomAuthCfg map[string]interface{} `json:"custom_auth_config,omitempty"`
@@ -64,14 +64,16 @@ type BudgetUsage struct {
 }
 
 type SimulationResponse struct {
-	Status           string               `json:"status"` // "success" or "error"
-	Error            string               `json:"error,omitempty"`
-	Events           []string             `json:"events,omitempty"`            // Raw event strings (backward compatibility)
-	DiagnosticEvents []DiagnosticEvent    `json:"diagnostic_events,omitempty"` // Structured diagnostic events
-	Logs             []string             `json:"logs,omitempty"`              // Host debug logs
-	Flamegraph       string               `json:"flamegraph,omitempty"`        // SVG flamegraph
-	AuthTrace        *authtrace.AuthTrace `json:"auth_trace,omitempty"`
-	BudgetUsage      *BudgetUsage         `json:"budget_usage,omitempty"` // Resource consumption metrics
+	Status            string               `json:"status"` // "success" or "error"
+	Error             string               `json:"error,omitempty"`
+	Events            []string             `json:"events,omitempty"`            // Raw event strings (backward compatibility)
+	DiagnosticEvents  []DiagnosticEvent    `json:"diagnostic_events,omitempty"` // Structured diagnostic events
+	Logs              []string             `json:"logs,omitempty"`              // Host debug logs
+	Flamegraph        string               `json:"flamegraph,omitempty"`        // SVG flamegraph
+	AuthTrace         *authtrace.AuthTrace `json:"auth_trace,omitempty"`
+	BudgetUsage       *BudgetUsage         `json:"budget_usage,omitempty"` // Resource consumption metrics
+	CategorizedEvents []CategorizedEvent   `json:"categorized_events,omitempty"`
+	ProtocolVersion   uint32               `json:"protocol_version,omitempty"`
 }
 
 type CategorizedEvent struct {

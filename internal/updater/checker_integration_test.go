@@ -73,8 +73,7 @@ func TestConfigPrecedenceIntegration(t *testing.T) {
 	t.Run("config disables updates when env is unset", func(t *testing.T) {
 		require.NoError(t, os.Unsetenv("ERST_NO_UPDATE_CHECK"))
 
-		writeConfig("check_for_updates: false
-")
+		writeConfig("check_for_updates: false\n")
 
 		checker := NewChecker("v1.0.0")
 		disabled := checker.isUpdateCheckDisabled()
@@ -84,8 +83,7 @@ func TestConfigPrecedenceIntegration(t *testing.T) {
 	t.Run("config enables updates when env is unset", func(t *testing.T) {
 		require.NoError(t, os.Unsetenv("ERST_NO_UPDATE_CHECK"))
 
-		writeConfig("check_for_updates: true
-")
+		writeConfig("check_for_updates: true\n")
 
 		checker := NewChecker("v1.0.0")
 		disabled := checker.isUpdateCheckDisabled()
@@ -94,8 +92,7 @@ func TestConfigPrecedenceIntegration(t *testing.T) {
 
 	t.Run("environment variable takes precedence over config", func(t *testing.T) {
 		// Config explicitly enables updates, but env var should still win.
-		writeConfig("check_for_updates: true
-")
+		writeConfig("check_for_updates: true\n")
 
 		require.NoError(t, os.Setenv("ERST_NO_UPDATE_CHECK", "1"))
 

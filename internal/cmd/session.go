@@ -112,8 +112,7 @@ The session ID can be auto-generated or specified with --id flag.`,
 		// Run cleanup before save
 		if err := store.Cleanup(ctx, session.DefaultTTL, session.DefaultMaxSessions); err != nil {
 			// Log but don't fail on cleanup errors
-			fmt.Fprintf(os.Stderr, "Warning: cleanup failed: %v
-", err)
+			fmt.Fprintf(os.Stderr, "Warning: cleanup failed: %v\n", err)
 		}
 
 		// Save session
@@ -121,14 +120,10 @@ The session ID can be auto-generated or specified with --id flag.`,
 			return fmt.Errorf("Error: failed to save session: %w", err)
 		}
 
-		fmt.Printf("Session saved: %s
-", data.ID)
-		fmt.Printf("  Transaction: %s
-", data.TxHash)
-		fmt.Printf("  Network: %s
-", data.Network)
-		fmt.Printf("  Created: %s
-", data.CreatedAt.Format(time.RFC3339))
+		fmt.Printf("Session saved: %s\n", data.ID)
+		fmt.Printf("  Transaction: %s\n", data.TxHash)
+		fmt.Printf("  Network: %s\n", data.Network)
+		fmt.Printf("  Created: %s\n", data.CreatedAt.Format(time.RFC3339))
 
 		return nil
 	},
@@ -161,8 +156,7 @@ Use 'erst session list' to see available sessions.`,
 
 		// Run cleanup
 		if err := store.Cleanup(ctx, session.DefaultTTL, session.DefaultMaxSessions); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: session cleanup failed: %v
-", err)
+			fmt.Fprintf(os.Stderr, "Warning: session cleanup failed: %v\n", err)
 		}
 
 		// Load session
@@ -181,46 +175,32 @@ Use 'erst session list' to see available sessions.`,
 		SetCurrentSession(data)
 
 		// Display session info
-		fmt.Printf("Session resumed: %s
-", data.ID)
-		fmt.Printf("  Transaction: %s
-", data.TxHash)
-		fmt.Printf("  Network: %s
-", data.Network)
-		fmt.Printf("  Created: %s
-", data.CreatedAt.Format(time.RFC3339))
-		fmt.Printf("  Last accessed: %s
-", data.LastAccessAt.Format(time.RFC3339))
+		fmt.Printf("Session resumed: %s\n", data.ID)
+		fmt.Printf("  Transaction: %s\n", data.TxHash)
+		fmt.Printf("  Network: %s\n", data.Network)
+		fmt.Printf("  Created: %s\n", data.CreatedAt.Format(time.RFC3339))
+		fmt.Printf("  Last accessed: %s\n", data.LastAccessAt.Format(time.RFC3339))
 
 		// Show transaction envelope info
 		if data.EnvelopeXdr != "" {
-			fmt.Printf("
-Transaction Envelope:
-")
-			fmt.Printf("  Size: %d bytes
-", len(data.EnvelopeXdr))
+			fmt.Printf("\nTransaction Envelope:\n")
+			fmt.Printf("  Size: %d bytes\n", len(data.EnvelopeXdr))
 		}
 
 		// Show simulation results if available
 		if data.SimResponseJSON != "" {
 			resp, err := data.ToSimulationResponse()
 			if err == nil {
-				fmt.Printf("
-Simulation Results:
-")
-				fmt.Printf("  Status: %s
-", resp.Status)
+				fmt.Printf("\nSimulation Results:\n")
+				fmt.Printf("  Status: %s\n", resp.Status)
 				if resp.Error != "" {
-					fmt.Printf("  Error: %s
-", resp.Error)
+					fmt.Printf("  Error: %s\n", resp.Error)
 				}
 				if len(resp.Events) > 0 {
-					fmt.Printf("  Events: %d
-", len(resp.Events))
+					fmt.Printf("  Events: %d\n", len(resp.Events))
 				}
 				if len(resp.Logs) > 0 {
-					fmt.Printf("  Logs: %d
-", len(resp.Logs))
+					fmt.Printf("  Logs: %d\n", len(resp.Logs))
 				}
 			}
 		}
@@ -250,8 +230,7 @@ Displays session ID, network, last access time, and transaction hash.`,
 
 		// Run cleanup
 		if err := store.Cleanup(ctx, session.DefaultTTL, session.DefaultMaxSessions); err != nil {
-			fmt.Fprintf(os.Stderr, "Warning: session cleanup failed: %v
-", err)
+			fmt.Fprintf(os.Stderr, "Warning: session cleanup failed: %v\n", err)
 		}
 
 		// List sessions
@@ -265,11 +244,8 @@ Displays session ID, network, last access time, and transaction hash.`,
 			return nil
 		}
 
-		fmt.Printf("Saved sessions (%d):
-
-", len(sessions))
-		fmt.Printf("%-20s %-12s %-20s %-66s
-", "ID", "Network", "Last Accessed", "Transaction Hash")
+		fmt.Printf("Saved sessions (%d):\n\n", len(sessions))
+		fmt.Printf("%-20s %-12s %-20s %-66s\n", "ID", "Network", "Last Accessed", "Transaction Hash")
 		fmt.Println("--------------------------------------------------------------------------------")
 
 		for _, s := range sessions {
@@ -278,8 +254,7 @@ Displays session ID, network, last access time, and transaction hash.`,
 			if len(txHash) > 64 {
 				txHash = txHash[:64] + "..."
 			}
-			fmt.Printf("%-20s %-12s %-20s %-66s
-", s.ID, s.Network, lastAccess, txHash)
+			fmt.Printf("%-20s %-12s %-20s %-66s\n", s.ID, s.Network, lastAccess, txHash)
 		}
 
 		return nil
@@ -311,8 +286,7 @@ Use 'erst session list' to see available sessions.`,
 			return fmt.Errorf("Error: failed to delete session '%s': %w", sessionID, err)
 		}
 
-		fmt.Printf("Session deleted: %s
-", sessionID)
+		fmt.Printf("Session deleted: %s\n", sessionID)
 		return nil
 	},
 }

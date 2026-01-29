@@ -31,16 +31,16 @@ func New(client *rpc.Client) *Wizard {
 
 func (w *Wizard) SelectTransaction(ctx context.Context, account string) (*SelectionResult, error) {
 	if account == "" {
-		return nil, errors.Wrap(errors.ErrInvalidNetwork, "account address required")
+		return nil, fmt.Errorf("%w: account address required", errors.ErrInvalidNetwork)
 	}
 
 	txs, err := w.client.GetAccountTransactions(ctx, account, defaultLimit)
 	if err != nil {
-		return nil, errors.Wrap(errors.ErrRPCConnectionFailed, "%w", err)
+		return nil, fmt.Errorf("%v: %w", errors.ErrRPCConnectionFailed, err)
 	}
 
 	if len(txs) == 0 {
-		return nil, errors.Wrap(errors.ErrTransactionNotFound, "no transactions found for account")
+		return nil, fmt.Errorf("%w: no transactions found for account", errors.ErrTransactionNotFound)
 	}
 
 	failed := filter(txs, isFailed)

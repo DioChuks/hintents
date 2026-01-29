@@ -37,11 +37,9 @@ func Example() {
 
 	findings := detector.Analyze("", "", events, logs)
 
-	fmt.Printf("Found %d security issues:
-", len(findings))
+	fmt.Printf("Found %d security issues:\n", len(findings))
 	for i, finding := range findings {
-		fmt.Printf("%d. [%s] %s - %s
-", i+1, finding.Type, finding.Severity, finding.Title)
+		fmt.Printf("%d. [%s] %s - %s\n", i+1, finding.Type, finding.Severity, finding.Title)
 	}
 
 	// Output:

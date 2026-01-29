@@ -18,8 +18,8 @@ package decoder
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
-	"strings"
 
 	"github.com/stellar/go/xdr"
 )
@@ -30,7 +30,7 @@ type CallNode struct {
 	Function   string         `json:"function,omitempty"`
 	Events     []DecodedEvent `json:"events,omitempty"`
 	SubCalls   []*CallNode    `json:"sub_calls,omitempty"`
-	
+
 	// Internal for tree building
 	parent *CallNode
 }
@@ -73,12 +73,12 @@ func DecodeEvents(eventsXdr []string) (*CallNode, error) {
 			}
 			current.SubCalls = append(current.SubCalls, child)
 			current = child
-			
+
 			// Add the call event itself to the child (optional, but good for context)
 			current.Events = append(current.Events, decoded)
 		} else if isFunctionReturn(decoded) {
 			returnedFn := extractFunctionName(decoded)
-			
+
 			// Handle stack unwinding for failed/implicit returns
 			// If current function doesn't match the return event, check up the stack
 			if current.Function != returnedFn && current.Function != "TOP_LEVEL" {
@@ -92,7 +92,7 @@ func DecodeEvents(eventsXdr []string) (*CallNode, error) {
 					}
 					iter = iter.parent
 				}
-				
+
 				// If found, unwind everything below it (they failed/exited without event)
 				if found {
 					for current != iter {
@@ -103,7 +103,7 @@ func DecodeEvents(eventsXdr []string) (*CallNode, error) {
 
 			// Add return event to current (which should now be the matching node)
 			current.Events = append(current.Events, decoded)
-			
+
 			// Pop stack
 			if current.parent != nil {
 				current = current.parent
@@ -120,14 +120,14 @@ func DecodeEvents(eventsXdr []string) (*CallNode, error) {
 func parseEvent(diag xdr.DiagnosticEvent) DecodedEvent {
 	var contractID string
 	if diag.Event.ContractId != nil {
-		contractID = diag.Event.ContractId.HexString()
+		contractID = hex.EncodeToString(diag.Event.ContractId[:])
 	}
 
 	topics := make([]string, 0)
 	for _, topic := range diag.Event.Body.V0.Topics {
 		// Attempt to convert to string if symbol, otherwise hex/debug
 		if topic.Type == xdr.ScValTypeScvSymbol {
-			topics = append(topics, string(topic.Sym))
+			topics = append(topics, string(*topic.Sym))
 		} else {
 			// Fallback for other types
 			topics = append(topics, fmt.Sprintf("%v", topic.Type))
@@ -157,6 +157,8 @@ func extractFunctionName(e DecodedEvent) string {
 		return e.Topics[1]
 	}
 	return "unknown"
+}
+
 // DecodeEnvelope decodes a base64-encoded XDR transaction envelope
 func DecodeEnvelope(envelopeXdr string) (*xdr.TransactionEnvelope, error) {
 	if envelopeXdr == "" {

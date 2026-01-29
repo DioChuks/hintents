@@ -190,10 +190,7 @@ func (c *Checker) compareVersions(current, latest string) (bool, error) {
 // displayNotification prints the update message to stderr
 func (c *Checker) displayNotification(latestVersion string) {
 	message := fmt.Sprintf(
-		"
-💡 A new version (%s) is available! Run 'go install github.com/dotandev/hintents/cmd/erst@latest' to update.
-
-",
+		"\n💡 A new version (%s) is available! Run 'go install github.com/dotandev/hintents/cmd/erst@latest' to update.\n\n",
 		latestVersion,
 	)
 	fmt.Fprint(os.Stderr, message)
@@ -263,8 +260,7 @@ func checkConfigFile(configPath string) bool {
 
 	// Simple YAML parsing - look for "check_for_updates: false"
 	// This is a basic implementation that avoids adding a YAML dependency
-	lines := strings.Split(string(data), "
-")
+	lines := strings.Split(string(data), "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		// Check for "check_for_updates: false" or "check_for_updates:false"

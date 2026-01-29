@@ -93,18 +93,14 @@ Example:
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		go func() {
 			<-sigChan
-			fmt.Println("
-Received interrupt signal, shutting down...")
+			fmt.Println("\nReceived interrupt signal, shutting down...")
 			cancel()
 		}()
 
-		fmt.Printf("Starting ERST daemon on port %s
-", daemonPort)
-		fmt.Printf("Network: %s
-", daemonNetwork)
+		fmt.Printf("Starting ERST daemon on port %s\n", daemonPort)
+		fmt.Printf("Network: %s\n", daemonNetwork)
 		if daemonRPCURL != "" {
-			fmt.Printf("RPC URL: %s
-", daemonRPCURL)
+			fmt.Printf("RPC URL: %s\n", daemonRPCURL)
 		}
 		if daemonAuthToken != "" {
 			fmt.Println("Authentication: enabled")

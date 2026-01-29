@@ -56,8 +56,7 @@ var versionCmd = &cobra.Command{
 			fmt.Printf("Build Date:   %s\n", info.BuildDate)
 			fmt.Printf("Go Version:   %s\n", info.GoVersion)
 		}
-		fmt.Printf("erst version %s
-", Version)
+		fmt.Printf("erst version %s\n", Version)
 	},
 }
 

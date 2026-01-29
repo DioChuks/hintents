@@ -25,7 +25,6 @@ import (
 	"time"
 
 	"github.com/dotandev/hintents/internal/logger"
-	"github.com/schollz/progressbar/v3"
 	"github.com/dotandev/hintents/internal/telemetry"
 	"github.com/stellar/go/clients/horizonclient"
 	hProtocol "github.com/stellar/go/protocols/horizon"
@@ -69,6 +68,7 @@ func (t *authTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 	}
 	return t.transport.RoundTrip(req)
 }
+
 // NetworkConfig represents a Stellar network configuration
 type NetworkConfig struct {
 	Name              string
@@ -218,7 +218,6 @@ func createHTTPClient(token string) *http.Client {
 			token:     token,
 			transport: http.DefaultTransport,
 		},
-		Config:     defaultClient.Config,
 	}
 }
 
@@ -277,11 +276,7 @@ func (c *Client) GetTransaction(ctx context.Context, hash string) (*TransactionR
 	logger.Logger.Info("Transaction fetched successfully", "hash", hash, "envelope_size", len(tx.EnvelopeXdr))
 
 	return ParseTransactionResponse(tx), nil
-	return &TransactionResponse{
-		EnvelopeXdr:   tx.EnvelopeXdr,
-		ResultXdr:     tx.ResultXdr,
-		ResultMetaXdr: tx.ResultMetaXdr,
-	}, nil
+
 }
 
 // GetNetworkPassphrase returns the network passphrase for this client
@@ -333,9 +328,9 @@ type GetLedgerEntriesResponse struct {
 // Returns:
 //   - *LedgerHeaderResponse: Header data if successful
 //   - error: Typed error indicating failure reason:
-//     * LedgerNotFoundError: Ledger doesn't exist (future or invalid)
-//     * LedgerArchivedError: Ledger has been archived
-//     * RateLimitError: Too many requests
+//   - LedgerNotFoundError: Ledger doesn't exist (future or invalid)
+//   - LedgerArchivedError: Ledger has been archived
+//   - RateLimitError: Too many requests
 //
 // Example:
 //

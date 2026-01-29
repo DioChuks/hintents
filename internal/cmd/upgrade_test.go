@@ -17,7 +17,7 @@ func TestGetContractIDFromEnvelope(t *testing.T) {
 	contractID := xdr.Hash{0x01, 0x02, 0x03, 0x04} // ... padding
 	scAddress := xdr.ScAddress{
 		Type:       xdr.ScAddressTypeScAddressTypeContract,
-		ContractId: &contractID,
+		ContractId: (*xdr.ContractId)(&contractID),
 	}
 
 	op := xdr.Operation{
@@ -40,6 +40,12 @@ func TestGetContractIDFromEnvelope(t *testing.T) {
 		Type: xdr.EnvelopeTypeEnvelopeTypeTx,
 		V1: &xdr.TransactionV1Envelope{
 			Tx: xdr.Transaction{
+				SourceAccount: xdr.MuxedAccount{
+					Type:    xdr.CryptoKeyTypeKeyTypeEd25519,
+					Ed25519: &xdr.Uint256{1, 2, 3, 4},
+				},
+				Fee:        100,
+				SeqNum:     1,
 				Operations: []xdr.Operation{op},
 			},
 		},
@@ -70,9 +76,9 @@ func TestInjectNewCode(t *testing.T) {
 
 	// 3. Verify Key
 	expectedKey := xdr.LedgerKey{
-		Type: xdr.LedgerKeyTypeContractCode,
+		Type: xdr.LedgerEntryTypeContractCode,
 		ContractCode: &xdr.LedgerKeyContractCode{
-			ContractId: contractID,
+			Hash: contractID,
 		},
 	}
 	keyBytes, _ := expectedKey.MarshalBinary()

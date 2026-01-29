@@ -98,8 +98,7 @@ func main() {
 		for i := 0; i < 1000; i++ {
 			hash, err := rpc.HashLedgerKey(key)
 			if err != nil {
-				fmt.Printf(" %s: ERROR - %v
-", tt.name, err)
+				fmt.Printf(" %s: ERROR - %v\n", tt.name, err)
 				allPassed = false
 				continue
 			}
@@ -108,19 +107,15 @@ func main() {
 
 		// Should have exactly 1 unique hash
 		if len(hashes) != 1 {
-			fmt.Printf("%s: FAIL - Expected 1 unique hash, got %d
-", tt.name, len(hashes))
+			fmt.Printf("%s: FAIL - Expected 1 unique hash, got %d\n", tt.name, len(hashes))
 			for hash, count := range hashes {
-				fmt.Printf("     Hash: %s, Count: %d
-", hash, count)
+				fmt.Printf("     Hash: %s, Count: %d\n", hash, count)
 			}
 			allPassed = false
 		} else {
 			for hash := range hashes {
-				fmt.Printf(" %s: SUCCESS
-", tt.name)
-				fmt.Printf("   Hash: %s
-", hash)
+				fmt.Printf(" %s: SUCCESS\n", tt.name)
+				fmt.Printf("   Hash: %s\n", hash)
 			}
 		}
 	}

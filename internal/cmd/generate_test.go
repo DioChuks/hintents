@@ -61,8 +61,7 @@ Example:
 		generator := testgen.NewTestGenerator(client, genTestOutput)
 
 		// Generate tests
-		fmt.Printf("Generating %s regression test(s) for transaction: %s
-", genTestLang, txHash)
+		fmt.Printf("Generating %s regression test(s) for transaction: %s\n", genTestLang, txHash)
 		if err := generator.GenerateTests(cmd.Context(), txHash, genTestLang, genTestName); err != nil {
 			return fmt.Errorf("failed to generate tests: %w", err)
 		}

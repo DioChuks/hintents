@@ -4,6 +4,7 @@
 package cmd
 
 import (
+	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -44,9 +45,9 @@ Example:
 		// 2. Setup Client
 		var client *rpc.Client
 		if rpcURLFlag != "" {
-			client = rpc.NewClientWithURL(rpcURLFlag, rpc.Network(networkFlag))
+			client = rpc.NewClientWithURL(rpcURLFlag, rpc.Network(networkFlag), "")
 		} else {
-			client = rpc.NewClient(rpc.Network(networkFlag))
+			client = rpc.NewClient(rpc.Network(networkFlag), "")
 		}
 
 		// 3. Fetch Transaction
@@ -81,7 +82,7 @@ Example:
 		fmt.Println("Injected new WASM code into simulation state.")
 
 		// 6. Run Simulation
-		runner, err := simulator.NewRunner()
+		runner, err := simulator.NewRunner("", false)
 		if err != nil {
 			return fmt.Errorf("failed to initialize simulator runner: %w", err)
 		}
@@ -140,7 +141,7 @@ func getContractIDFromEnvelope(envelopeXdr string) (*xdr.Hash, error) {
 				args := fn.InvokeContract
 				if args.ContractAddress.Type == xdr.ScAddressTypeScAddressTypeContract {
 					hash := args.ContractAddress.ContractId
-					return hash, nil
+					return (*xdr.Hash)(hash), nil
 				}
 			}
 		}
@@ -152,9 +153,9 @@ func getContractIDFromEnvelope(envelopeXdr string) (*xdr.Hash, error) {
 func injectNewCode(entries map[string]string, contractID xdr.Hash, code []byte) error {
 	// 1. Construct LedgerKey for Contract Code
 	key := xdr.LedgerKey{
-		Type: xdr.LedgerKeyTypeContractCode,
+		Type: xdr.LedgerEntryTypeContractCode,
 		ContractCode: &xdr.LedgerKeyContractCode{
-			ContractId: contractID,
+			Hash: contractID,
 		},
 	}
 
@@ -185,7 +186,7 @@ func injectNewCode(entries map[string]string, contractID xdr.Hash, code []byte) 
 			ContractCode: &xdr.ContractCodeEntry{
 				Code: code,
 				Hash: hash,
-				Ext:  xdr.ExtensionPoint{V: 0},
+				Ext:  xdr.ContractCodeEntryExt{V: 0},
 			},
 		},
 		Ext: xdr.LedgerEntryExt{V: 0},

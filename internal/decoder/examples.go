@@ -46,28 +46,20 @@ func Example() {
 	// Example: Decode a transaction that failed due to insufficient balance
 	fmt.Println("=== Example 1: Insufficient Balance ===")
 	txCodeInfo := DecodeTransactionResultCode(xdr.TransactionResultCodeTxInsufficientBalance)
-	fmt.Printf("Error: %s (%s)
-", txCodeInfo.Description, txCodeInfo.Code)
-	fmt.Printf("Explanation: %s
-
-", txCodeInfo.Explanation)
+	fmt.Printf("Error: %s (%s)\n", txCodeInfo.Description, txCodeInfo.Code)
+	fmt.Printf("Explanation: %s\n\n", txCodeInfo.Explanation)
 
 	// Example: Decode a payment operation that failed due to no trustline
 	fmt.Println("=== Example 2: Payment No Trustline ===")
 	opCodeInfo := DecodePaymentResultCode(xdr.PaymentResultCodePaymentNoTrust)
-	fmt.Printf("Error: %s (%s)
-", opCodeInfo.Description, opCodeInfo.Code)
-	fmt.Printf("Explanation: %s
-
-", opCodeInfo.Explanation)
+	fmt.Printf("Error: %s (%s)\n", opCodeInfo.Description, opCodeInfo.Code)
+	fmt.Printf("Explanation: %s\n\n", opCodeInfo.Explanation)
 
 	// Example: Decode a create account operation that failed
 	fmt.Println("=== Example 3: Create Account Underfunded ===")
 	createAcctInfo := DecodeCreateAccountResultCode(xdr.CreateAccountResultCodeCreateAccountUnderfunded)
-	fmt.Printf("Error: %s (%s)
-", createAcctInfo.Description, createAcctInfo.Code)
-	fmt.Printf("Explanation: %s
-", createAcctInfo.Explanation)
+	fmt.Printf("Error: %s (%s)\n", createAcctInfo.Description, createAcctInfo.Code)
+	fmt.Printf("Explanation: %s\n", createAcctInfo.Explanation)
 
 	// Output:
 	// === Example 1: Insufficient Balance ===

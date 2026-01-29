@@ -35,8 +35,7 @@ func (r *Report) SummaryLines() []string {
 // MermaidFlowchart renders a Mermaid flowchart (text) that can be pasted into Markdown.
 func (r *Report) MermaidFlowchart() string {
 	var b strings.Builder
-	b.WriteString("flowchart LR
-")
+	b.WriteString("flowchart LR\n")
 
 	nodeID := map[string]string{}
 	next := 0
@@ -47,8 +46,7 @@ func (r *Report) MermaidFlowchart() string {
 		next++
 		id := fmt.Sprintf("n%d", next)
 		nodeID[label] = id
-		b.WriteString(fmt.Sprintf("  %s[\"%s\"]
-", id, escapeMermaidLabel(label)))
+		b.WriteString(fmt.Sprintf("  %s[\"%s\"]\n", id, escapeMermaidLabel(label)))
 		return id
 	}
 
@@ -56,8 +54,7 @@ func (r *Report) MermaidFlowchart() string {
 		from := getNode(t.From)
 		to := getNode(t.To)
 		label := fmt.Sprintf("%s %s", formatAmount(t), t.Token.Display())
-		b.WriteString(fmt.Sprintf("  %s -->|\"%s\"| %s
-", from, escapeMermaidLabel(label), to))
+		b.WriteString(fmt.Sprintf("  %s -->|\"%s\"| %s\n", from, escapeMermaidLabel(label), to))
 	}
 
 	return b.String()
@@ -100,10 +97,10 @@ func formatStroopsAsXLM(stroops *big.Int) string {
 	return fmt.Sprintf("%s.%s", intPart.String(), fracStr)
 }
 
-var mermaidUnsafe = regexp.MustCompile(`["\]`)
+var mermaidUnsafe = regexp.MustCompile(`[]"]`)
 
 func escapeMermaidLabel(s string) string {
 	return mermaidUnsafe.ReplaceAllStringFunc(s, func(m string) string {
-		return "\" + m
+		return "\\" + m
 	})
 }

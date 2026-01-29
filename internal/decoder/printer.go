@@ -33,15 +33,13 @@ func PrintEnvelope(d *DecodedEnvelope) {
 	}
 
 	if d.InnerTx != nil {
-		fmt.Println("
---- Inner Transaction ---")
+		fmt.Println("\n--- Inner Transaction ---")
 		PrintEnvelope(d.InnerTx)
 	}
 }
 
 func printOperation(i int, op xdr.Operation) {
-	fmt.Printf("  [%d] %s
-", i, op.Body.Type)
+	fmt.Printf("  [%d] %s\n", i, op.Body.Type)
 
 	switch op.Body.Type {
 
