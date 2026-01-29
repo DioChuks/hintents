@@ -34,10 +34,20 @@ struct SimulationRequest {
 }
 
 #[derive(Debug, Serialize)]
+struct DiagnosticEvent {
+    event_type: String,
+    contract_id: Option<String>,
+    topics: Vec<String>,
+    data: String,
+    in_successful_contract_call: bool,
+}
+
+#[derive(Debug, Serialize)]
 struct SimulationResponse {
     status: String,
     error: Option<String>,
     events: Vec<String>,
+    diagnostic_events: Vec<DiagnosticEvent>,
     logs: Vec<String>,
     flamegraph: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -68,6 +78,7 @@ fn main() {
             status: "error".to_string(),
             error: Some(format!("Failed to read stdin: {}", e)),
             events: vec![],
+            diagnostic_events: vec![],
             logs: vec![],
             flamegraph: None,
             optimization_report: None,
@@ -85,6 +96,7 @@ fn main() {
                 status: "error".to_string(),
                 error: Some(format!("Invalid JSON: {}", e)),
                 events: vec![],
+                diagnostic_events: vec![],
                 logs: vec![],
                 flamegraph: None,
                 optimization_report: None,
@@ -220,14 +232,52 @@ fn main() {
 
     match result {
         Ok(exec_logs) => {
-            let events = match host.get_events() {
-                Ok(evs) => evs.0.iter().map(|e| format!("{:?}", e)).collect(),
-                Err(_) => vec!["Failed to retrieve events".to_string()],
+            // Extract both raw event strings and structured diagnostic events
+            let (events, diagnostic_events) = match host.get_events() {
+                Ok(evs) => {
+                    let raw_events: Vec<String> = evs.0.iter().map(|e| format!("{:?}", e)).collect();
+                    let diag_events: Vec<DiagnosticEvent> = evs.0.iter().enumerate().map(|(_idx, event)| {
+                        let event_type = match &event.event.type_ {
+                            soroban_env_host::xdr::ContractEventType::Contract => "contract".to_string(),
+                            soroban_env_host::xdr::ContractEventType::System => "system".to_string(),
+                            soroban_env_host::xdr::ContractEventType::Diagnostic => "diagnostic".to_string(),
+                        };
+
+                        let contract_id = if let Some(contract_id) = &event.event.contract_id {
+                            Some(format!("{:?}", contract_id))
+                        } else {
+                            None
+                        };
+
+                        let (topics, data) = match &event.event.body {
+                            soroban_env_host::xdr::ContractEventBody::V0(v0) => {
+                                let topics: Vec<String> = v0.topics.iter()
+                                    .map(|t| format!("{:?}", t))
+                                    .collect();
+                                let data = format!("{:?}", v0.data);
+                                (topics, data)
+                            }
+                        };
+
+                        DiagnosticEvent {
+                            event_type,
+                            contract_id,
+                            topics,
+                            data,
+                            in_successful_contract_call: event.failed_call,
+                        }
+                    }).collect();
+                    (raw_events, diag_events)
+                },
+                Err(_) => (vec!["Failed to retrieve events".to_string()], vec![]),
             };
 
             let mut final_logs = vec![
                 format!("Host Initialized with Budget: {:?}", budget),
                 format!("Loaded {} Ledger Entries", loaded_entries_count),
+                format!("Captured {} diagnostic events", diagnostic_events.len()),
+                format!("CPU Instructions Used: {}", cpu_insns),
+                format!("Memory Bytes Used: {}", mem_bytes),
             ];
             final_logs.extend(exec_logs);
 
@@ -235,6 +285,7 @@ fn main() {
                 status: "success".to_string(),
                 error: None,
                 events,
+                diagnostic_events,
                 logs: final_logs,
                 flamegraph: flamegraph_svg,
                 optimization_report,
@@ -255,6 +306,7 @@ fn main() {
                 status: "error".to_string(),
                 error: Some(format!("Simulator panicked: {}", panic_msg)),
                 events: vec![],
+                diagnostic_events: vec![],
                 logs: vec![format!("PANIC: {}", panic_msg)],
                 flamegraph: None,
                 optimization_report: None,
@@ -282,6 +334,7 @@ fn send_error(msg: String) {
         status: "error".to_string(),
         error: Some(msg),
         events: vec![],
+        diagnostic_events: vec![],
         logs: vec![],
         flamegraph: None,
         optimization_report: None,
@@ -361,6 +414,7 @@ fn run_local_wasm_replay(wasm_path: &str, mock_args: &Option<Vec<String>>) {
         status: "success".to_string(),
         error: None,
         events,
+        diagnostic_events: vec![],
         logs,
         flamegraph: None,
         optimization_report: None,

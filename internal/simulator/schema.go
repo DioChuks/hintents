@@ -44,13 +44,31 @@ type AuthTraceOptions struct {
 	MaxEventDepth        int  `json:"max_event_depth,omitempty"`
 }
 
+// DiagnosticEvent represents a structured diagnostic event from the simulator
+type DiagnosticEvent struct {
+	EventType                string   `json:"event_type"` // "contract", "system", "diagnostic"
+	ContractID               *string  `json:"contract_id,omitempty"`
+	Topics                   []string `json:"topics"`
+	Data                     string   `json:"data"`
+	InSuccessfulContractCall bool     `json:"in_successful_contract_call"`
+}
+
+// BudgetUsage represents resource consumption during simulation
+type BudgetUsage struct {
+	CPUInstructions uint64 `json:"cpu_instructions"`
+	MemoryBytes     uint64 `json:"memory_bytes"`
+	OperationsCount int    `json:"operations_count"`
+}
+
 type SimulationResponse struct {
-	Status     string               `json:"status"` // "success" or "error"
-	Error      string               `json:"error,omitempty"`
-	Events     []string             `json:"events,omitempty"`     // Diagnostic events
-	Logs       []string             `json:"logs,omitempty"`       // Host debug logs
-	Flamegraph string               `json:"flamegraph,omitempty"` // SVG flamegraph
-	AuthTrace  *authtrace.AuthTrace `json:"auth_trace,omitempty"`
+	Status           string               `json:"status"` // "success" or "error"
+	Error            string               `json:"error,omitempty"`
+	Events           []string             `json:"events,omitempty"`            // Raw event strings (backward compatibility)
+	DiagnosticEvents []DiagnosticEvent    `json:"diagnostic_events,omitempty"` // Structured diagnostic events
+	Logs             []string             `json:"logs,omitempty"`              // Host debug logs
+	Flamegraph       string               `json:"flamegraph,omitempty"`        // SVG flamegraph
+	AuthTrace        *authtrace.AuthTrace `json:"auth_trace,omitempty"`
+	BudgetUsage      *BudgetUsage         `json:"budget_usage,omitempty"` // Resource consumption metrics
 }
 
 // Session represents a stored simulation result
