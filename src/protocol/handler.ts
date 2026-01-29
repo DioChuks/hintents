@@ -149,7 +149,8 @@ export class ProtocolHandler {
     }
 
     /**
-     * Log protocol invocation attempts to a local audit file
+     * Log protocol invocation attempts to a local audit file.
+     * Records timestamp, status (ACCEPTED/REJECTED), and request context.
      */
     private async logAudit(status: 'ACCEPTED' | 'REJECTED', data: any, timestamp: string): Promise<void> {
         try {
