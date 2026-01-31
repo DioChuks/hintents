@@ -562,8 +562,33 @@ func printSimulationResult(network string, res *simulator.SimulationResponse) {
 	// Display budget usage if available
 	if res.BudgetUsage != nil {
 		fmt.Printf("\nResource Usage:\n")
-		fmt.Printf("  CPU Instructions: %d\n", res.BudgetUsage.CPUInstructions)
-		fmt.Printf("  Memory Bytes: %d\n", res.BudgetUsage.MemoryBytes)
+
+		// CPU usage with percentage and warning indicator
+		cpuIndicator := ""
+		if res.BudgetUsage.CPUUsagePercent >= 95.0 {
+			cpuIndicator = " ⚠️  CRITICAL"
+		} else if res.BudgetUsage.CPUUsagePercent >= 80.0 {
+			cpuIndicator = " ⚠️  WARNING"
+		}
+		fmt.Printf("  CPU Instructions: %d / %d (%.2f%%)%s\n",
+			res.BudgetUsage.CPUInstructions,
+			res.BudgetUsage.CPULimit,
+			res.BudgetUsage.CPUUsagePercent,
+			cpuIndicator)
+
+		// Memory usage with percentage and warning indicator
+		memIndicator := ""
+		if res.BudgetUsage.MemoryUsagePercent >= 95.0 {
+			memIndicator = " ⚠️  CRITICAL"
+		} else if res.BudgetUsage.MemoryUsagePercent >= 80.0 {
+			memIndicator = " ⚠️  WARNING"
+		}
+		fmt.Printf("  Memory Bytes: %d / %d (%.2f%%)%s\n",
+			res.BudgetUsage.MemoryBytes,
+			res.BudgetUsage.MemoryLimit,
+			res.BudgetUsage.MemoryUsagePercent,
+			memIndicator)
+
 		fmt.Printf("  Operations: %d\n", res.BudgetUsage.OperationsCount)
 	}
 
