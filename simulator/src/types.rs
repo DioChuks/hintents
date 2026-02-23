@@ -14,6 +14,8 @@ pub struct SimulationRequest {
     pub enable_optimization_advisor: bool,
     pub profile: Option<bool>,
     pub timestamp: String,
+    pub mock_base_fee: Option<u32>,
+    pub mock_gas_price: Option<u64>,
 }
 
 #[derive(Debug, Serialize)]

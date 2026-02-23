@@ -24,6 +24,8 @@ type SimulationRequest struct {
 	MockArgs        *[]string         `json:"mock_args,omitempty"`
 	Profile         bool              `json:"profile,omitempty"`
 	ProtocolVersion *uint32           `json:"protocol_version,omitempty"`
+	MockBaseFee     *uint32           `json:"mock_base_fee,omitempty"`
+	MockGasPrice    *uint64           `json:"mock_gas_price,omitempty"`
 
 	AuthTraceOpts *AuthTraceOptions      `json:"auth_trace_opts,omitempty"`
 	CustomAuthCfg map[string]interface{} `json:"custom_auth_config,omitempty"`
