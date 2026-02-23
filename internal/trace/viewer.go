@@ -7,6 +7,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/signal"
 	"strconv"
 	"strings"
 
@@ -27,12 +28,33 @@ func NewInteractiveViewer(trace *ExecutionTrace) *InteractiveViewer {
 	}
 }
 
-// Start begins the interactive trace viewing session
+// Start begins the interactive trace viewing session.
+// It installs a terminal-resize handler so that long contract IDs and XDR
+// strings reflow correctly whenever the window size changes.
 func (v *InteractiveViewer) Start() error {
+	termW := getTermWidth()
 	fmt.Printf("%s ERST Interactive Trace Viewer\n", visualizer.Symbol("magnify"))
-	fmt.Println("=================================")
+	fmt.Println(separator(termW))
 	fmt.Printf("Transaction: %s\n", v.trace.TransactionHash)
 	fmt.Printf("Total Steps: %d\n\n", len(v.trace.States))
+
+	// Resize handling: on SIGWINCH (Unix), reflow the current state display.
+	resizeCh := make(chan os.Signal, 1)
+	watchResize(resizeCh)
+	done := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-resizeCh:
+				// Reprint current state with updated terminal width.
+				fmt.Print("\n")
+				v.displayCurrentState()
+				fmt.Print("\n> ")
+			case <-done:
+				return
+			}
+		}
+	}()
 
 	v.showHelp()
 	v.displayCurrentState()
@@ -41,6 +63,8 @@ func (v *InteractiveViewer) Start() error {
 		fmt.Print("\n> ")
 		input, err := v.reader.ReadString('\n')
 		if err != nil {
+			close(done)
+			signal.Stop(resizeCh)
 			return fmt.Errorf("failed to read input: %w", err)
 		}
 
@@ -50,10 +74,12 @@ func (v *InteractiveViewer) Start() error {
 		}
 
 		if v.handleCommand(command) {
-			break // Exit requested
+			break
 		}
 	}
 
+	close(done)
+	signal.Stop(resizeCh)
 	return nil
 }
 
@@ -147,7 +173,8 @@ func (v *InteractiveViewer) jumpToStep(stepStr string) {
 	v.displayCurrentState()
 }
 
-// displayCurrentState shows the current execution state
+// displayCurrentState shows the current execution state, reflowing long
+// contract IDs and XDR strings to fit the current terminal width.
 func (v *InteractiveViewer) displayCurrentState() {
 	state, err := v.trace.GetCurrentState()
 	if err != nil {
@@ -155,29 +182,30 @@ func (v *InteractiveViewer) displayCurrentState() {
 		return
 	}
 
+	termW := getTermWidth()
 	fmt.Printf("\n%s Current State\n", visualizer.Symbol("pin"))
-	fmt.Println("================")
+	fmt.Println(separator(termW))
 	fmt.Printf("Step: %d/%d\n", state.Step, len(v.trace.States)-1)
 	fmt.Printf("Time: %s\n", state.Timestamp.Format("15:04:05.000"))
 	fmt.Printf("Operation: %s\n", state.Operation)
 
 	if state.ContractID != "" {
-		fmt.Printf("Contract: %s\n", state.ContractID)
+		fmt.Println(wrapField("Contract", state.ContractID, termW))
 	}
 	if state.Function != "" {
-		fmt.Printf("Function: %s\n", state.Function)
+		fmt.Println(wrapField("Function", state.Function, termW))
 	}
 	if len(state.Arguments) > 0 {
-		fmt.Printf("Arguments: %v\n", state.Arguments)
+		fmt.Println(wrapField("Arguments", fmt.Sprintf("%v", state.Arguments), termW))
 	}
 	if state.ReturnValue != nil {
-		fmt.Printf("Return: %v\n", state.ReturnValue)
+		fmt.Println(wrapField("Return", fmt.Sprintf("%v", state.ReturnValue), termW))
 	}
 	if state.Error != "" {
-		fmt.Printf("%s Error: %s\n", visualizer.Error(), state.Error)
+		indicator := visualizer.Error() + " "
+		fmt.Printf("%s%s\n", indicator, wrapField("Error", state.Error, termW-len(indicator)))
 	}
 
-	// Show memory/state summary
 	if len(state.HostState) > 0 {
 		fmt.Printf("Host State: %d entries\n", len(state.HostState))
 	}
@@ -194,8 +222,9 @@ func (v *InteractiveViewer) reconstructCurrentState() {
 		return
 	}
 
+	termW := getTermWidth()
 	fmt.Printf("\n%s Reconstructed State\n", visualizer.Symbol("wrench"))
-	fmt.Println("======================")
+	fmt.Println(separator(termW))
 	v.displayState(state)
 }
 
@@ -213,35 +242,38 @@ func (v *InteractiveViewer) reconstructState(stepStr string) {
 		return
 	}
 
+	termW := getTermWidth()
 	fmt.Printf("\n%s Reconstructed State at Step %d\n", visualizer.Symbol("wrench"), step)
-	fmt.Println("==================================")
+	fmt.Println(separator(termW))
 	v.displayState(state)
 }
 
-// displayState displays a complete state
+// displayState displays a complete state, reflowing long values to fit the
+// current terminal width.
 func (v *InteractiveViewer) displayState(state *ExecutionState) {
+	termW := getTermWidth()
 	fmt.Printf("Step: %d\n", state.Step)
 	fmt.Printf("Time: %s\n", state.Timestamp.Format("15:04:05.000"))
 	fmt.Printf("Operation: %s\n", state.Operation)
 
 	if state.ContractID != "" {
-		fmt.Printf("Contract: %s\n", state.ContractID)
+		fmt.Println(wrapField("Contract", state.ContractID, termW))
 	}
 	if state.Function != "" {
-		fmt.Printf("Function: %s\n", state.Function)
+		fmt.Println(wrapField("Function", state.Function, termW))
 	}
 
 	if len(state.HostState) > 0 {
 		fmt.Println("\nHost State:")
-		for k, v := range state.HostState {
-			fmt.Printf("  %s: %v\n", k, v)
+		for k, val := range state.HostState {
+			fmt.Printf("  %s\n", wrapField(k, fmt.Sprintf("%v", val), termW-2))
 		}
 	}
 
 	if len(state.Memory) > 0 {
 		fmt.Println("\nMemory:")
-		for k, v := range state.Memory {
-			fmt.Printf("  %s: %v\n", k, v)
+		for k, val := range state.Memory {
+			fmt.Printf("  %s\n", wrapField(k, fmt.Sprintf("%v", val), termW-2))
 		}
 	}
 }
@@ -250,8 +282,9 @@ func (v *InteractiveViewer) displayState(state *ExecutionState) {
 func (v *InteractiveViewer) showNavigationInfo() {
 	info := v.trace.GetNavigationInfo()
 
+	termW := getTermWidth()
 	fmt.Printf("\n%s Navigation Info\n", visualizer.Symbol("chart"))
-	fmt.Println("==================")
+	fmt.Println(separator(termW))
 	fmt.Printf("Total Steps: %d\n", info["total_steps"])
 	fmt.Printf("Current Step: %d\n", info["current_step"])
 	fmt.Printf("Can Step Back: %t\n", info["can_step_back"])
@@ -259,19 +292,21 @@ func (v *InteractiveViewer) showNavigationInfo() {
 	fmt.Printf("Snapshots: %d\n", info["snapshots_count"])
 }
 
-// listSteps shows a list of steps around the current position
+// listSteps shows a list of steps around the current position.
+// Each line is truncated to the terminal width to keep the tree readable.
 func (v *InteractiveViewer) listSteps(countStr string) {
 	count, err := strconv.Atoi(countStr)
 	if err != nil {
 		count = 10
 	}
 
+	termW := getTermWidth()
 	current := v.trace.CurrentStep
 	start := max(0, current-count/2)
 	end := min(len(v.trace.States)-1, start+count-1)
 
 	fmt.Printf("\n%s Steps %d-%d\n", visualizer.Symbol("list"), start, end)
-	fmt.Println("===============")
+	fmt.Println(separator(termW))
 
 	for i := start; i <= end; i++ {
 		state := &v.trace.States[i]
@@ -280,21 +315,27 @@ func (v *InteractiveViewer) listSteps(countStr string) {
 			marker = visualizer.Symbol("play")
 		}
 
-		fmt.Printf("%s %3d: %s", marker, i, state.Operation)
+		line := fmt.Sprintf("%s %3d: %s", marker, i, state.Operation)
 		if state.Function != "" {
-			fmt.Printf(" (%s)", state.Function)
+			line += fmt.Sprintf(" (%s)", state.Function)
 		}
 		if state.Error != "" {
-			fmt.Printf(" %s", visualizer.Error())
+			line += fmt.Sprintf(" %s", visualizer.Error())
 		}
-		fmt.Println()
+
+		// Truncate to terminal width to preserve tree alignment.
+		if len(line) > termW && termW > 3 {
+			line = line[:termW-3] + "..."
+		}
+		fmt.Println(line)
 	}
 }
 
 // showHelp displays available commands
 func (v *InteractiveViewer) showHelp() {
+	termW := getTermWidth()
 	fmt.Printf("\n%s Available Commands\n", visualizer.Symbol("book"))
-	fmt.Println("=====================")
+	fmt.Println(separator(termW))
 	fmt.Println("Navigation:")
 	fmt.Println("  n, next, forward     - Step forward")
 	fmt.Println("  p, prev, back        - Step backward")
