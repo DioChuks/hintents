@@ -100,7 +100,7 @@ export class FallbackRPCClient {
                 this.markSuccess(endpoint);
                 this.currentIndex = 0; // Return to primary
 
-                const responseSize = JSON.stringify(response.data).length;
+                const responseSize = response.data ? JSON.stringify(response.data).length : 0;
                 logger.verbose(LogCategory.RPC, `← Response received (${duration}ms)`);
                 logger.verboseIndent(LogCategory.RPC, `Status: ${response.status} ${response.statusText}`);
                 logger.verboseIndent(LogCategory.RPC, `Response size: ${logger.formatBytes(responseSize)}`);
