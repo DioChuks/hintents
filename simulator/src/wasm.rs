@@ -18,7 +18,9 @@ impl std::fmt::Display for WasmLoadError {
         match self {
             WasmLoadError::Io(e) => write!(f, "failed to read WASM file: {}", e),
             WasmLoadError::InvalidMagic => write!(f, "invalid WASM: missing magic bytes (\\0asm)"),
-            WasmLoadError::TooLarge { size, limit } => write!(f, "WASM too large: {} bytes (limit {})", size, limit),
+            WasmLoadError::TooLarge { size, limit } => {
+                write!(f, "WASM too large: {} bytes (limit {})", size, limit)
+            }
         }
     }
 }
@@ -29,7 +31,10 @@ pub fn load_wasm_from_path(path: &str) -> Result<Vec<u8>, WasmLoadError> {
         return Err(WasmLoadError::InvalidMagic);
     }
     if bytes.len() > MAX_WASM_SIZE {
-        return Err(WasmLoadError::TooLarge { size: bytes.len(), limit: MAX_WASM_SIZE });
+        return Err(WasmLoadError::TooLarge {
+            size: bytes.len(),
+            limit: MAX_WASM_SIZE,
+        });
     }
     Ok(bytes)
 }
