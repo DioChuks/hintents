@@ -15,15 +15,17 @@ import (
 
 // InteractiveViewer provides a terminal-based interactive trace navigation interface
 type InteractiveViewer struct {
-	trace  *ExecutionTrace
-	reader *bufio.Reader
+	trace      *ExecutionTrace
+	reader     *bufio.Reader
+	hideStdLib bool // Tracks whether to hide Rust core::* traces
 }
 
 // NewInteractiveViewer creates a new interactive trace viewer
 func NewInteractiveViewer(trace *ExecutionTrace) *InteractiveViewer {
 	return &InteractiveViewer{
-		trace:  trace,
-		reader: bufio.NewReader(os.Stdin),
+		trace:      trace,
+		reader:     bufio.NewReader(os.Stdin),
+		hideStdLib: false, // Default to showing everything
 	}
 }
 
@@ -64,7 +66,19 @@ func (v *InteractiveViewer) handleCommand(command string) bool {
 		return false
 	}
 
-	cmd := strings.ToLower(parts[0])
+	cmdExact := parts[0]
+	cmd := strings.ToLower(cmdExact)
+
+	// Handle case-sensitive 'S' for the stdlib toggle before the lowercased switch
+	if cmdExact == "S" {
+		v.hideStdLib = !v.hideStdLib
+		status := "shown"
+		if v.hideStdLib {
+			status = "hidden"
+		}
+		fmt.Printf("%s Rust core::* traces are now %s\n", visualizer.Symbol("eye"), status)
+		return false
+	}
 
 	switch cmd {
 	case "n", "next", "forward":
@@ -99,34 +113,48 @@ func (v *InteractiveViewer) handleCommand(command string) bool {
 		fmt.Printf("Goodbye! %s\n", visualizer.Symbol("wave"))
 		return true
 	default:
-		fmt.Printf("Unknown command: %s. Type 'help' for available commands.\n", cmd)
+		fmt.Printf("Unknown command: %s. Type 'help' for available commands.\n", cmdExact)
 	}
 
 	return false
 }
 
-// stepForward moves to the next step
+// stepForward moves to the next step, skipping core::* if hideStdLib is true
 func (v *InteractiveViewer) stepForward() {
-	state, err := v.trace.StepForward()
-	if err != nil {
-		fmt.Printf("%s %s\n", visualizer.Error(), err)
+	for {
+		state, err := v.trace.StepForward()
+		if err != nil {
+			fmt.Printf("%s %s\n", visualizer.Error(), err)
+			return
+		}
+
+		if v.hideStdLib && strings.HasPrefix(state.Function, "core::") {
+			continue // Skip this step and automatically evaluate the next one
+		}
+
+		fmt.Printf("%s  Stepped forward to step %d\n", visualizer.Symbol("arrow_r"), state.Step)
+		v.displayCurrentState()
 		return
 	}
-
-	fmt.Printf("%s  Stepped forward to step %d\n", visualizer.Symbol("arrow_r"), state.Step)
-	v.displayCurrentState()
 }
 
-// stepBackward moves to the previous step
+// stepBackward moves to the previous step, skipping core::* if hideStdLib is true
 func (v *InteractiveViewer) stepBackward() {
-	state, err := v.trace.StepBackward()
-	if err != nil {
-		fmt.Printf("%s %s\n", visualizer.Error(), err)
+	for {
+		state, err := v.trace.StepBackward()
+		if err != nil {
+			fmt.Printf("%s %s\n", visualizer.Error(), err)
+			return
+		}
+
+		if v.hideStdLib && strings.HasPrefix(state.Function, "core::") {
+			continue // Skip this step and automatically evaluate the previous one
+		}
+
+		fmt.Printf("%s  Stepped backward to step %d\n", visualizer.Symbol("arrow_l"), state.Step)
+		v.displayCurrentState()
 		return
 	}
-
-	fmt.Printf("%s  Stepped backward to step %d\n", visualizer.Symbol("arrow_l"), state.Step)
-	v.displayCurrentState()
 }
 
 // jumpToStep jumps to a specific step
@@ -233,15 +261,15 @@ func (v *InteractiveViewer) displayState(state *ExecutionState) {
 
 	if len(state.HostState) > 0 {
 		fmt.Println("\nHost State:")
-		for k, v := range state.HostState {
-			fmt.Printf("  %s: %v\n", k, v)
+		for k, val := range state.HostState {
+			fmt.Printf("  %s: %v\n", k, val)
 		}
 	}
 
 	if len(state.Memory) > 0 {
 		fmt.Println("\nMemory:")
-		for k, v := range state.Memory {
-			fmt.Printf("  %s: %v\n", k, v)
+		for k, val := range state.Memory {
+			fmt.Printf("  %s: %v\n", k, val)
 		}
 	}
 }
@@ -271,10 +299,19 @@ func (v *InteractiveViewer) listSteps(countStr string) {
 	end := min(len(v.trace.States)-1, start+count-1)
 
 	fmt.Printf("\n%s Steps %d-%d\n", visualizer.Symbol("list"), start, end)
+	if v.hideStdLib {
+		fmt.Println("(Filtering out core::* traces)")
+	}
 	fmt.Println("===============")
 
 	for i := start; i <= end; i++ {
 		state := &v.trace.States[i]
+
+		// Hide core::* functions from the list view if toggle is active
+		if v.hideStdLib && strings.HasPrefix(state.Function, "core::") {
+			continue
+		}
+
 		marker := "  "
 		if i == current {
 			marker = visualizer.Symbol("play")
@@ -302,6 +339,7 @@ func (v *InteractiveViewer) showHelp() {
 	fmt.Println()
 	fmt.Println("Display:")
 	fmt.Println("  s, show, state       - Show current state")
+	fmt.Println("  S                    - Toggle hiding/showing Rust core::* traces")
 	fmt.Println("  r, reconstruct [step] - Reconstruct state")
 	fmt.Println("  l, list [count]      - List steps (default: 10)")
 	fmt.Println("  i, info              - Show navigation info")
