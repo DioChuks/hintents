@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/dotandev/hintents/internal/logger"
@@ -102,6 +103,25 @@ type Client struct {
 	token        string // stored for reference, not logged
 	Config       NetworkConfig
 	CacheEnabled bool
+}
+
+// NodeFailure records a failure for a specific RPC URL
+type NodeFailure struct {
+	URL    string
+	Reason error
+}
+
+// AllNodesFailedError represents a failure after exhausting all RPC endpoints
+type AllNodesFailedError struct {
+	Failures []NodeFailure
+}
+
+func (e *AllNodesFailedError) Error() string {
+	var reasons []string
+	for _, f := range e.Failures {
+		reasons = append(reasons, fmt.Sprintf("%s: %v", f.URL, f.Reason))
+	}
+	return fmt.Sprintf("all RPC endpoints failed: [%s]", strings.Join(reasons, ", "))
 }
 
 // NewClientDefault creates a new RPC client with sensible defaults
@@ -207,11 +227,14 @@ func NewCustomClient(config NetworkConfig) (*Client, error) {
 
 // GetTransaction fetches the transaction details and full XDR data
 func (c *Client) GetTransaction(ctx context.Context, hash string) (*TransactionResponse, error) {
+	var failures []NodeFailure
 	for attempt := 0; attempt < len(c.AltURLs); attempt++ {
 		resp, err := c.getTransactionAttempt(ctx, hash)
 		if err == nil {
 			return resp, nil
 		}
+
+		failures = append(failures, NodeFailure{URL: c.HorizonURL, Reason: err})
 
 		// Only rotate if this isn't the last possible URL
 		if attempt < len(c.AltURLs)-1 {
@@ -221,7 +244,7 @@ func (c *Client) GetTransaction(ctx context.Context, hash string) (*TransactionR
 			}
 		}
 	}
-	return nil, fmt.Errorf("all RPC endpoints failed")
+	return nil, &AllNodesFailedError{Failures: failures}
 }
 
 func (c *Client) getTransactionAttempt(ctx context.Context, hash string) (*TransactionResponse, error) {
@@ -315,16 +338,39 @@ type GetLedgerEntriesResponse struct {
 //	if IsLedgerNotFound(err) {
 //	    log.Printf("Ledger not found: %v", err)
 //	}
+//
+// GetLedgerHeader fetches ledger header details for a specific sequence with automatic fallback.
 func (c *Client) GetLedgerHeader(ctx context.Context, sequence uint32) (*LedgerHeaderResponse, error) {
+	var failures []NodeFailure
+	for attempt := 0; attempt < len(c.AltURLs); attempt++ {
+		resp, err := c.getLedgerHeaderAttempt(ctx, sequence)
+		if err == nil {
+			return resp, nil
+		}
+
+		failures = append(failures, NodeFailure{URL: c.HorizonURL, Reason: err})
+
+		if attempt < len(c.AltURLs)-1 {
+			logger.Logger.Warn("Retrying ledger header fetch with fallback RPC...", "error", err)
+			if !c.rotateURL() {
+				break
+			}
+		}
+	}
+	return nil, &AllNodesFailedError{Failures: failures}
+}
+
+func (c *Client) getLedgerHeaderAttempt(ctx context.Context, sequence uint32) (*LedgerHeaderResponse, error) {
 	tracer := telemetry.GetTracer()
 	_, span := tracer.Start(ctx, "rpc_get_ledger_header")
 	span.SetAttributes(
 		attribute.String("network", string(c.Network)),
 		attribute.Int("ledger.sequence", int(sequence)),
+		attribute.String("rpc.url", c.HorizonURL),
 	)
 	defer span.End()
 
-	logger.Logger.Debug("Fetching ledger header", "sequence", sequence, "network", c.Network)
+	logger.Logger.Debug("Fetching ledger header", "sequence", sequence, "network", c.Network, "url", c.HorizonURL)
 
 	// Fetch ledger from Horizon
 	ledger, err := c.Horizon.LedgerDetail(sequence)
@@ -344,8 +390,7 @@ func (c *Client) GetLedgerHeader(ctx context.Context, sequence uint32) (*LedgerH
 	logger.Logger.Info("Ledger header fetched successfully",
 		"sequence", sequence,
 		"hash", response.Hash,
-		"protocol_version", response.ProtocolVersion,
-		"close_time", response.CloseTime,
+		"url", c.HorizonURL,
 	)
 
 	return response, nil
@@ -469,11 +514,18 @@ func (c *Client) GetLedgerEntries(ctx context.Context, keys []string) (map[strin
 	}
 
 	logger.Logger.Debug("Fetching ledger entries from RPC", "count", len(keysToFetch), "url", c.SorobanURL)
+	var failures []NodeFailure
 	for attempt := 0; attempt < len(c.AltURLs); attempt++ {
-		entries, err := c.getLedgerEntriesAttempt(ctx, keysToFetch)
+		res, err := c.getLedgerEntriesAttempt(ctx, keysToFetch)
 		if err == nil {
+			// Merge with cached results
+			for k, v := range res {
+				entries[k] = v
+			}
 			return entries, nil
 		}
+
+		failures = append(failures, NodeFailure{URL: c.HorizonURL, Reason: err})
 
 		if attempt < len(c.AltURLs)-1 {
 			logger.Logger.Warn("Retrying with fallback Soroban RPC...", "error", err)
@@ -482,9 +534,8 @@ func (c *Client) GetLedgerEntries(ctx context.Context, keys []string) (map[strin
 			}
 			continue
 		}
-		return nil, err
 	}
-	return nil, fmt.Errorf("all Soroban RPC endpoints failed")
+	return nil, &AllNodesFailedError{Failures: failures}
 }
 
 func (c *Client) getLedgerEntriesAttempt(ctx context.Context, keysToFetch []string) (map[string]string, error) {
@@ -629,9 +680,28 @@ type SimulateTransactionResponse struct {
 }
 
 // SimulateTransaction calls Soroban RPC simulateTransaction using a base64 TransactionEnvelope XDR.
-// This is used for pre-submission "dry-run" cost estimation.
 func (c *Client) SimulateTransaction(ctx context.Context, envelopeXdr string) (*SimulateTransactionResponse, error) {
-	logger.Logger.Debug("Simulating transaction (preflight)", "url", c.SorobanURL)
+	var failures []NodeFailure
+	for attempt := 0; attempt < len(c.AltURLs); attempt++ {
+		resp, err := c.simulateTransactionAttempt(ctx, envelopeXdr)
+		if err == nil {
+			return resp, nil
+		}
+
+		failures = append(failures, NodeFailure{URL: c.HorizonURL, Reason: err})
+
+		if attempt < len(c.AltURLs)-1 {
+			logger.Logger.Warn("Retrying transaction simulation with fallback RPC...", "error", err)
+			if !c.rotateURL() {
+				break
+			}
+		}
+	}
+	return nil, &AllNodesFailedError{Failures: failures}
+}
+
+func (c *Client) simulateTransactionAttempt(ctx context.Context, envelopeXdr string) (*SimulateTransactionResponse, error) {
+	logger.Logger.Debug("Simulating transaction (preflight)", "url", c.HorizonURL)
 
 	reqBody := SimulateTransactionRequest{
 		Jsonrpc: "2.0",
@@ -645,7 +715,7 @@ func (c *Client) SimulateTransaction(ctx context.Context, envelopeXdr string) (*
 		return nil, fmt.Errorf("failed to marshal request: %w", err)
 	}
 
-	req, err := http.NewRequestWithContext(ctx, "POST", c.SorobanURL, bytes.NewBuffer(bodyBytes))
+	req, err := http.NewRequestWithContext(ctx, "POST", c.HorizonURL, bytes.NewBuffer(bodyBytes))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -653,7 +723,7 @@ func (c *Client) SimulateTransaction(ctx context.Context, envelopeXdr string) (*
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to execute request: %w", err)
+		return nil, fmt.Errorf("failed to execute request to %s: %w", c.HorizonURL, err)
 	}
 	defer resp.Body.Close()
 
@@ -668,7 +738,7 @@ func (c *Client) SimulateTransaction(ctx context.Context, envelopeXdr string) (*
 	}
 
 	if rpcResp.Error != nil {
-		return nil, fmt.Errorf("rpc error: %s (code %d)", rpcResp.Error.Message, rpcResp.Error.Code)
+		return nil, fmt.Errorf("rpc error from %s: %s (code %d)", c.HorizonURL, rpcResp.Error.Message, rpcResp.Error.Code)
 	}
 
 	return &rpcResp, nil
