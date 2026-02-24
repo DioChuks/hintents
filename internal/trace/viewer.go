@@ -164,6 +164,14 @@ func (v *InteractiveViewer) displayCurrentState() {
 	if state.ContractID != "" {
 		fmt.Printf("Contract: %s\n", state.ContractID)
 	}
+
+	// Indicate cross-contract transition from previous step
+	if state.Step > 0 && state.ContractID != "" {
+		prev := &v.trace.States[state.Step-1]
+		if prev.ContractID != "" && prev.ContractID != state.ContractID {
+			fmt.Printf("%s\n", visualizer.ContractBoundary(prev.ContractID, state.ContractID))
+		}
+	}
 	if state.Function != "" {
 		fmt.Printf("Function: %s\n", state.Function)
 	}
@@ -273,8 +281,22 @@ func (v *InteractiveViewer) listSteps(countStr string) {
 	fmt.Printf("\n%s Steps %d-%d\n", visualizer.Symbol("list"), start, end)
 	fmt.Println("===============")
 
+	prevContractID := ""
+	if start > 0 {
+		prevContractID = v.trace.States[start-1].ContractID
+	}
+
 	for i := start; i <= end; i++ {
 		state := &v.trace.States[i]
+
+		// Highlight cross-contract call boundary
+		if state.ContractID != "" && prevContractID != "" && state.ContractID != prevContractID {
+			fmt.Printf("     %s\n", visualizer.ContractBoundary(prevContractID, state.ContractID))
+		}
+		if state.ContractID != "" {
+			prevContractID = state.ContractID
+		}
+
 		marker := "  "
 		if i == current {
 			marker = visualizer.Symbol("play")
