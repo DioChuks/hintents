@@ -61,7 +61,7 @@ TEST_PUBLIC_KEY_PEM="<your-public-key-pem-here>"
 ```
 
 ## Status
-✅ **RESOLVED** - Hardcoded secret removed and pushed to remote
+[OK] **RESOLVED** - Hardcoded secret removed and pushed to remote
 
 ## Commit Reference
 - **Commit Message**: `security: Remove hardcoded private key from test file`
