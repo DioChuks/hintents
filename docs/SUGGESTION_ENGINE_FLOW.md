@@ -119,7 +119,7 @@
        ▼                 ▼                 ▼
 ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
 │  Match?      │  │  Match?      │  │  Match?      │
-│  ✓ YES       │  │  ✗ NO        │  │  ✗ NO        │
+│  [OK] YES       │  │  [FAIL] NO        │  │  [FAIL] NO        │
 └──────┬───────┘  └──────────────┘  └──────────────┘
        │
        ▼
@@ -127,7 +127,7 @@
 │  Event Checks:                                    │
 │  - Check if topics contain "storage"              │
 │  - Check if topics contain "empty"                │
-│  ✓ PASS                                           │
+│  [OK] PASS                                           │
 └──────┬───────────────────────────────────────────┘
        │
        ▼

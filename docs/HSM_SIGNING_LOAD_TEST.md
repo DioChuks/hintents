@@ -14,11 +14,11 @@ The audit signing pipeline is considered **enterprise-ready** when meeting ALL o
 
 | Metric | Target | Status |
 |--------|--------|--------|
-| **Throughput** | ≥100 transactions/sec | ✓ Required |
-| **P95 Latency** | <100ms | ✓ Required |
-| **P99 Latency** | <250ms | ✓ Required |
-| **Memory Growth** | <500MB for 10k txns | ✓ Required |
-| **Error Rate** | 0% (no failed signatures) | ✓ Required |
+| **Throughput** | ≥100 transactions/sec | [OK] Required |
+| **P95 Latency** | <100ms | [OK] Required |
+| **P99 Latency** | <250ms | [OK] Required |
+| **Memory Growth** | <500MB for 10k txns | [OK] Required |
+| **Error Rate** | 0% (no failed signatures) | [OK] Required |
 
 These targets enable:
 - Processing 10,000 transactions in approximately 100-150 seconds
@@ -205,13 +205,13 @@ TRANSACTION RESULTS
 THROUGHPUT & TIMING
   Total Time:            98765.43ms (98.77s)
   Throughput:            101.25 txns/sec
-  ↳ Enterprise Target:   100+ txns/sec ✓ PASS
+  ↳ Enterprise Target:   100+ txns/sec [OK] PASS
 
 LATENCY ANALYSIS
   Min Latency:           5.23ms
   P50 Latency:           9.45ms
-  P95 Latency:           18.92ms (target: <100ms) ✓ PASS
-  P99 Latency:           23.15ms (target: <250ms) ✓ PASS
+  P95 Latency:           18.92ms (target: <100ms) [OK] PASS
+  P99 Latency:           23.15ms (target: <250ms) [OK] PASS
   Max Latency:           156.78ms
   Mean Latency:          10.12ms
 
@@ -219,17 +219,17 @@ MEMORY CONSUMPTION
   Initial Heap:          15.23MB
   Peak Heap:             287.45MB
   Final Heap:            18.92MB
-  Growth:                272.22MB (target: <500MB) ✓ PASS
+  Growth:                272.22MB (target: <500MB) [OK] PASS
 
 ENTERPRISE SCALE READINESS
-  10k Transaction Load:  ✓ 100% PASS
-  Error-free Signing:    ✓ PASS (0.00% error rate)
-  Latency SLO Met:       ✓ PASS
-  Throughput SLO Met:    ✓ PASS
-  Memory Budget Ok:      ✓ PASS
+  10k Transaction Load:  [OK] 100% PASS
+  Error-free Signing:    [OK] PASS (0.00% error rate)
+  Latency SLO Met:       [OK] PASS
+  Throughput SLO Met:    [OK] PASS
+  Memory Budget Ok:      [OK] PASS
 
 SUMMARY
-  Status: ✓ ENTERPRISE READY
+  Status: [OK] ENTERPRISE READY
 ```
 
 ## Test Suite Details
@@ -238,61 +238,61 @@ SUMMARY
 
 Sanity checks and baseline performance verification:
 
-- ✓ Complete all transactions successfully
-- ✓ Achieve minimum throughput of 100 txns/sec
-- ✓ Maintain p95 latency below 100ms
-- ✓ Maintain p99 latency below 250ms
-- ✓ Zero error rate
-- ✓ Memory growth under 500MB
-- ✓ Realistic latency distribution (min ≤ p50 ≤ p95 ≤ p99 ≤ max)
-- ✓ Consistent timing information
+- [OK] Complete all transactions successfully
+- [OK] Achieve minimum throughput of 100 txns/sec
+- [OK] Maintain p95 latency below 100ms
+- [OK] Maintain p99 latency below 250ms
+- [OK] Zero error rate
+- [OK] Memory growth under 500MB
+- [OK] Realistic latency distribution (min ≤ p50 ≤ p95 ≤ p99 ≤ max)
+- [OK] Consistent timing information
 
 ### 2. Enterprise Scale Load Test (10,000 transactions)
 
 Production-capacity validation:
 
-- ✓ Complete all 10k transactions with 100% success
-- ✓ Handle enterprise-scale load without degradation
-- ✓ Maintain sub-100ms p95 latency at scale
-- ✓ Maintain sub-250ms p99 latency at scale
-- ✓ Achieve required throughput for 10k transactions
-- ✓ Scale linearly with transaction count
-- ✓ Manage memory efficiently (<50KB per transaction average)
-- ✓ Maintain latency consistency across distribution
+- [OK] Complete all 10k transactions with 100% success
+- [OK] Handle enterprise-scale load without degradation
+- [OK] Maintain sub-100ms p95 latency at scale
+- [OK] Maintain sub-250ms p99 latency at scale
+- [OK] Achieve required throughput for 10k transactions
+- [OK] Scale linearly with transaction count
+- [OK] Manage memory efficiently (<50KB per transaction average)
+- [OK] Maintain latency consistency across distribution
 
 ### 3. Batch Processing Efficiency
 
 Optimization of batch sizes:
 
-- ✓ Process batches efficiently (both small and large)
-- ✓ Similar throughput across different batch sizes
+- [OK] Process batches efficiently (both small and large)
+- [OK] Similar throughput across different batch sizes
 
 ### 4. Memory Profile Analysis
 
 Leak detection and memory management:
 
-- ✓ No memory leaks (cleanup between batches)
-- ✓ Reasonable heap growth for sustained load
-- ✓ Accurate initial memory tracking
+- [OK] No memory leaks (cleanup between batches)
+- [OK] Reasonable heap growth for sustained load
+- [OK] Accurate initial memory tracking
 
 ### 5. Latency Distribution Analysis
 
 Quality of service metrics:
 
-- ✓ Reasonable latency variance (p99/p50 ratio < 10)
-- ✓ Consistent tail latencies (max/p99 ratio < 5)
-- ✓ Mean latency reflects typical performance
+- [OK] Reasonable latency variance (p99/p50 ratio < 10)
+- [OK] Consistent tail latencies (max/p99 ratio < 5)
+- [OK] Mean latency reflects typical performance
 
 ### 6. Enterprise SLO Compliance
 
 Comprehensive validation:
 
-- ✓ Throughput SLO: ≥100 txns/sec
-- ✓ P95 Latency SLO: <100ms
-- ✓ P99 Latency SLO: <250ms
-- ✓ Memory Budget SLO: <500MB growth
-- ✓ Error Rate SLO: 0%
-- ✓ Overall: ENTERPRISE READY status
+- [OK] Throughput SLO: ≥100 txns/sec
+- [OK] P95 Latency SLO: <100ms
+- [OK] P99 Latency SLO: <250ms
+- [OK] Memory Budget SLO: <500MB growth
+- [OK] Error Rate SLO: 0%
+- [OK] Overall: ENTERPRISE READY status
 
 ## Performance Interpretation
 
@@ -329,9 +329,9 @@ Based on 10k transaction benchmark:
 
 | Load | Estimated Time | Memory Budget | Status |
 |------|----------------|---------------|--------|
-| 1k txns | ~10 seconds | <150MB | ✓ Easily handles |
-| 10k txns | ~100 seconds | <300MB | ✓ Validates SLO |
-| 100k txns | ~17 minutes | <2.5GB | ✓ Feasible |
+| 1k txns | ~10 seconds | <150MB | [OK] Easily handles |
+| 10k txns | ~100 seconds | <300MB | [OK] Validates SLO |
+| 100k txns | ~17 minutes | <2.5GB | [OK] Feasible |
 | 1M txns | ~2.8 hours | <25GB | ⚠ Requires planning |
 
 ## Customization
@@ -447,4 +447,4 @@ if (results.throughputTxnsPerSec < 100) {
 
 **Last Updated**: 2026-02-24  
 **Test Coverage**: 100% enterprise-scale load paths  
-**Status**: ✓ Enterprise Ready
+**Status**: [OK] Enterprise Ready

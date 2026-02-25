@@ -162,10 +162,10 @@ $ stellar contract invoke \
 
 ## Need Help?
 
-- 📖 Full docs: [ERROR_SUGGESTIONS.md](ERROR_SUGGESTIONS.md)
-- 🐛 Report issues: GitHub Issues
+- [DOC] Full docs: [ERROR_SUGGESTIONS.md](ERROR_SUGGESTIONS.md)
+- [BUG] Report issues: GitHub Issues
 - 💬 Ask questions: GitHub Discussions
-- 📝 Examples: [suggestions_example.go](../internal/decoder/suggestions_example.go)
+- [LOG] Examples: [suggestions_example.go](../internal/decoder/suggestions_example.go)
 
 ## License
 

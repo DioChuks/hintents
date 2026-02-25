@@ -111,23 +111,23 @@ go test ./internal/decoder/integration_test.go -v
 ```
 
 Test coverage includes:
-- ✅ All 7 built-in rules
-- ✅ Custom rule addition
-- ✅ Call tree analysis
-- ✅ Deduplication logic
-- ✅ Output formatting
-- ✅ Edge cases (empty events, no matches)
-- ✅ Real-world scenarios
+- [OK] All 7 built-in rules
+- [OK] Custom rule addition
+- [OK] Call tree analysis
+- [OK] Deduplication logic
+- [OK] Output formatting
+- [OK] Edge cases (empty events, no matches)
+- [OK] Real-world scenarios
 
 ## Success Criteria
 
-✅ **CLI prints suggestions**: Integrated into `erst debug` command  
-✅ **Clearly marked**: All suggestions labeled as "Potential Fixes"  
-✅ **Heuristic rules**: 7 built-in rules for common errors  
-✅ **Extensible**: Support for custom rules  
-✅ **Well-tested**: Comprehensive test suite  
-✅ **Documented**: Complete documentation with examples  
-✅ **Junior-friendly**: Clear, actionable suggestions
+[OK] **CLI prints suggestions**: Integrated into `erst debug` command  
+[OK] **Clearly marked**: All suggestions labeled as "Potential Fixes"  
+[OK] **Heuristic rules**: 7 built-in rules for common errors  
+[OK] **Extensible**: Support for custom rules  
+[OK] **Well-tested**: Comprehensive test suite  
+[OK] **Documented**: Complete documentation with examples  
+[OK] **Junior-friendly**: Clear, actionable suggestions
 
 ## Example Commit Message
 

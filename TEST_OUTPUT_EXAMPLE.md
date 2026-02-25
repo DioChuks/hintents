@@ -108,7 +108,7 @@ Events: 8, Logs: 3
    Potential Fix: Ensure you have called initialize() on this contract before invoking other functions.
 
 === Security Analysis ===
-✓ No security issues detected
+[OK] No security issues detected
 
 Token Flow Summary:
   → XLM transferred
@@ -196,7 +196,7 @@ Resource Usage:
 Events: 5, Logs: 2
 
 === Security Analysis ===
-✓ No security issues detected
+[OK] No security issues detected
 
 Token Flow Summary:
   → 10 XLM transferred successfully
@@ -235,7 +235,7 @@ Events: 4, Logs: 1
    Potential Fix: Wait before retrying or implement exponential backoff in your application.
 
 === Security Analysis ===
-✓ No security issues detected
+[OK] No security issues detected
 
 Session created: custom123-xyz789
 Run 'erst session save' to persist this session.

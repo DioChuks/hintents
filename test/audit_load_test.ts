@@ -298,13 +298,13 @@ TRANSACTION RESULTS
 THROUGHPUT & TIMING
   Total Time:            ${results.totalTimeMs.toFixed(2)}ms (${(results.totalTimeMs / 1000).toFixed(2)}s)
   Throughput:            ${results.throughputTxnsPerSec.toFixed(2)} txns/sec
-  ↳ Enterprise Target:   100+ txns/sec ✓${results.throughputTxnsPerSec >= 100 ? ' PASS' : ' FAIL'}
+  ↳ Enterprise Target:   100+ txns/sec [OK]${results.throughputTxnsPerSec >= 100 ? ' PASS' : ' FAIL'}
 
 LATENCY ANALYSIS
   Min Latency:           ${results.latencyMetrics.minMs.toFixed(2)}ms
   P50 Latency:           ${results.latencyMetrics.p50Ms.toFixed(2)}ms
-  P95 Latency:           ${results.latencyMetrics.p95Ms.toFixed(2)}ms (target: <100ms) ✓${results.latencyMetrics.p95Ms < 100 ? ' PASS' : ' FAIL'}
-  P99 Latency:           ${results.latencyMetrics.p99Ms.toFixed(2)}ms (target: <250ms) ✓${results.latencyMetrics.p99Ms < 250 ? ' PASS' : ' FAIL'}
+  P95 Latency:           ${results.latencyMetrics.p95Ms.toFixed(2)}ms (target: <100ms) [OK]${results.latencyMetrics.p95Ms < 100 ? ' PASS' : ' FAIL'}
+  P99 Latency:           ${results.latencyMetrics.p99Ms.toFixed(2)}ms (target: <250ms) [OK]${results.latencyMetrics.p99Ms < 250 ? ' PASS' : ' FAIL'}
   Max Latency:           ${results.latencyMetrics.maxMs.toFixed(2)}ms
   Mean Latency:          ${results.latencyMetrics.meanMs.toFixed(2)}ms
 
@@ -312,14 +312,14 @@ MEMORY CONSUMPTION
   Initial Heap:          ${results.memoryMetrics.initialHeapMB.toFixed(2)}MB
   Peak Heap:             ${results.memoryMetrics.peakHeapMB.toFixed(2)}MB
   Final Heap:            ${results.memoryMetrics.finalHeapMB.toFixed(2)}MB
-  Growth:                ${results.memoryMetrics.heapGrowthMB.toFixed(2)}MB (target: <500MB) ✓${results.memoryMetrics.heapGrowthMB < 500 ? ' PASS' : ' FAIL'}
+  Growth:                ${results.memoryMetrics.heapGrowthMB.toFixed(2)}MB (target: <500MB) [OK]${results.memoryMetrics.heapGrowthMB < 500 ? ' PASS' : ' FAIL'}
 
 ENTERPRISE SCALE READINESS
-  10k Transaction Load:  ✓${results.successfulTransactions === results.totalTransactions ? ' 100% PASS' : ' PARTIAL PASS'}
-  Error-free Signing:    ✓${results.errorRate === 0 ? ' PASS' : ' FAIL'} (${results.errorRate.toFixed(2)}% error rate)
-  Latency SLO Met:       ✓${results.latencyMetrics.p95Ms < 100 && results.latencyMetrics.p99Ms < 250 ? ' PASS' : ' FAIL'}
-  Throughput SLO Met:    ✓${results.throughputTxnsPerSec >= 100 ? ' PASS' : ' FAIL'}
-  Memory Budget Ok:      ✓${results.memoryMetrics.heapGrowthMB < 500 ? ' PASS' : ' FAIL'}
+  10k Transaction Load:  [OK]${results.successfulTransactions === results.totalTransactions ? ' 100% PASS' : ' PARTIAL PASS'}
+  Error-free Signing:    [OK]${results.errorRate === 0 ? ' PASS' : ' FAIL'} (${results.errorRate.toFixed(2)}% error rate)
+  Latency SLO Met:       [OK]${results.latencyMetrics.p95Ms < 100 && results.latencyMetrics.p99Ms < 250 ? ' PASS' : ' FAIL'}
+  Throughput SLO Met:    [OK]${results.throughputTxnsPerSec >= 100 ? ' PASS' : ' FAIL'}
+  Memory Budget Ok:      [OK]${results.memoryMetrics.heapGrowthMB < 500 ? ' PASS' : ' FAIL'}
 
 SUMMARY
   Status: ${
@@ -328,7 +328,7 @@ SUMMARY
     results.latencyMetrics.p99Ms < 250 &&
     results.memoryMetrics.heapGrowthMB < 500 &&
     results.errorRate === 0
-      ? '✓ ENTERPRISE READY'
+      ? '[OK] ENTERPRISE READY'
       : '⚠ REQUIRES OPTIMIZATION'
   }
   

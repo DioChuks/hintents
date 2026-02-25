@@ -58,10 +58,10 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 	// Print results
 	allOK := true
 	for _, dep := range dependencies {
-		status := "✓"
+		status := "[OK]"
 		statusColor := "\033[32m" // Green
 		if !dep.Installed {
-			status = "✗"
+			status = "[FAIL]"
 			statusColor = "\033[31m" // Red
 			allOK = false
 		}
@@ -85,7 +85,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 
 	// Summary
 	if allOK {
-		fmt.Println("\033[32m✓ All dependencies are installed and ready!\033[0m")
+		fmt.Println("\033[32m[OK] All dependencies are installed and ready!\033[0m")
 		return nil
 	}
 

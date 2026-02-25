@@ -13,6 +13,7 @@ pub struct SimulationRequest {
     pub result_meta_xdr: String,
     pub ledger_entries: Option<HashMap<String, String>>,
     pub contract_wasm: Option<String>,
+    pub wasm_path: Option<String>, // Added for local loading
     pub enable_optimization_advisor: bool,
     pub profile: Option<bool>,
     /// RFC 3339 timestamp supplied by the caller.  Preserved for future use

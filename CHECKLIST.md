@@ -1,6 +1,6 @@
 # Implementation Checklist: Error Suggestion Engine
 
-## ✅ Requirements (from Issue)
+## [OK] Requirements (from Issue)
 
 ### Must-Haves
 - [x] Build a heuristic-based engine
@@ -30,7 +30,7 @@
 - [x] Documentation
 - [x] Example commit message
 
-## ✅ Code Quality
+## [OK] Code Quality
 
 ### Implementation
 - [x] Clean, readable code
@@ -53,7 +53,7 @@
 - [x] Architecture documentation
 - [x] Quick start guide
 
-## ✅ Files Created
+## [OK] Files Created
 
 ### Core Implementation
 - [x] `internal/decoder/suggestions.go` (200+ lines)
@@ -73,7 +73,7 @@
 - [x] `internal/cmd/debug.go` (integrated suggestion engine)
 - [x] `README.md` (added feature to list)
 
-## ✅ Built-in Rules
+## [OK] Built-in Rules
 
 - [x] Rule 1: Uninitialized Contract (high confidence)
 - [x] Rule 2: Missing Authorization (high confidence)
@@ -83,7 +83,7 @@
 - [x] Rule 6: Resource Limit Exceeded (medium confidence)
 - [x] Rule 7: Reentrancy Detected (medium confidence)
 
-## ✅ Features
+## [OK] Features
 
 ### Core Features
 - [x] Heuristic pattern matching
@@ -109,7 +109,7 @@
 - [x] Numbered suggestions
 - [x] Junior-developer friendly
 
-## ✅ Testing Coverage
+## [OK] Testing Coverage
 
 ### Unit Tests
 - [x] Test each built-in rule individually
@@ -134,7 +134,7 @@
 - [x] Multiple matching rules
 - [x] No matching rules
 
-## ✅ Documentation
+## [OK] Documentation
 
 ### User Documentation
 - [x] Overview and features
@@ -160,7 +160,7 @@
 - [x] PR guidelines
 - [x] Future enhancements
 
-## ✅ Success Criteria (from Issue)
+## [OK] Success Criteria (from Issue)
 
 ### Phase 5: UX & Community
 - [x] CLI prints "Suggestion: Ensure you have called initialize() on this contract."
@@ -182,7 +182,7 @@
 - [x] No breaking changes
 - [x] Follows conventions
 
-## 📋 Next Steps (Manual)
+## [LIST] Next Steps (Manual)
 
 ### Before PR
 - [ ] Create branch: `git checkout -b feature/decoder-suggestions`
@@ -208,7 +208,7 @@
 - [ ] No breaking changes
 - [ ] Backward compatible
 
-## 📊 Statistics
+## [STATS] Statistics
 
 - **Files Created**: 10
 - **Files Modified**: 2
@@ -218,17 +218,17 @@
 - **Documentation Pages**: 5
 - **Code Examples**: 10+
 
-## 🎯 Success Metrics
+## [TARGET] Success Metrics
 
-- ✅ All requirements met
-- ✅ All success criteria achieved
-- ✅ Comprehensive test coverage
-- ✅ Complete documentation
-- ✅ Production-ready code
-- ✅ Junior-developer friendly
-- ✅ Extensible architecture
+- [OK] All requirements met
+- [OK] All success criteria achieved
+- [OK] Comprehensive test coverage
+- [OK] Complete documentation
+- [OK] Production-ready code
+- [OK] Junior-developer friendly
+- [OK] Extensible architecture
 
-## 📝 Notes
+## [LOG] Notes
 
 - Implementation follows existing project patterns
 - No external dependencies added
