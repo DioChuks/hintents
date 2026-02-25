@@ -49,6 +49,8 @@ var (
 	ErrRPCResponseTooLarge  = errors.New("RPC response too large")
 	ErrConfigFailed         = errors.New("configuration error")
 	ErrNetworkNotFound      = errors.New("network not found")
+	ErrWasmInvalid          = errors.New("invalid WASM file")
+	ErrSpecNotFound         = errors.New("contract spec not found")
 )
 
 type LedgerNotFoundError struct {
@@ -211,6 +213,14 @@ func WrapConfigError(msg string, err error) error {
 
 func WrapNetworkNotFound(network string) error {
 	return fmt.Errorf("%w: %s", ErrNetworkNotFound, network)
+}
+
+func WrapWasmInvalid(msg string) error {
+	return fmt.Errorf("%w: %s", ErrWasmInvalid, msg)
+}
+
+func WrapSpecNotFound() error {
+	return fmt.Errorf("%w: no contractspecv0 section found; is this a compiled Soroban contract?", ErrSpecNotFound)
 }
 
 // WrapRPCResponseTooLarge wraps an HTTP 413 response into a readable message
