@@ -461,26 +461,130 @@ fn main() {
         }
         Ok(Err(host_error)) => {
             // Host error during execution (e.g., contract trap, validation failure)
+
+            // Extract both raw event strings and structured diagnostic events
+            let (events, diagnostic_events): (Vec<String>, Vec<DiagnosticEvent>) =
+                match host.get_events() {
+                    Ok(evs) => {
+                        let raw_events: Vec<String> =
+                            evs.0.iter().map(|e| format!("{:?}", e)).collect();
+                        let diag_events: Vec<DiagnosticEvent> = evs
+                            .0
+                            .iter()
+                            .map(|event| {
+                                let event_type = match &event.event.type_ {
+                                    soroban_env_host::xdr::ContractEventType::Contract => {
+                                        "contract".to_string()
+                                    }
+                                    soroban_env_host::xdr::ContractEventType::System => {
+                                        "system".to_string()
+                                    }
+                                    soroban_env_host::xdr::ContractEventType::Diagnostic => {
+                                        "diagnostic".to_string()
+                                    }
+                                };
+
+                                let contract_id = event
+                                    .event
+                                    .contract_id
+                                    .as_ref()
+                                    .map(|contract_id| format!("{:?}", contract_id));
+
+                                let (topics, data) = match &event.event.body {
+                                    soroban_env_host::xdr::ContractEventBody::V0(v0) => {
+                                        let topics: Vec<String> =
+                                            v0.topics.iter().map(|t| format!("{:?}", t)).collect();
+                                        let data = format!("{:?}", v0.data);
+                                        (topics, data)
+                                    }
+                                };
+
+                                DiagnosticEvent {
+                                    event_type,
+                                    contract_id,
+                                    topics,
+                                    data,
+                                    in_successful_contract_call: event.failed_call,
+                                }
+                            })
+                            .collect();
+                        (raw_events, diag_events)
+                    }
+                    Err(_) => (
+                        vec!["Failed to retrieve events".to_string()],
+                        Vec::<DiagnosticEvent>::new(),
+                    ),
+                };
+
+            // Capture categorized events for analyzer
+            let categorized_events = match host.get_events() {
+                Ok(evs) => categorize_events(&evs),
+                Err(_) => vec![],
+            };
+
+            // Heuristic to ignore Rust stdlib panic wrappers and find the actual source point
+            let mut user_panic_point = None;
+            for event in &diagnostic_events {
+                let mut combined_text = event.data.clone();
+                for topic in &event.topics {
+                    combined_text.push_str(" ");
+                    combined_text.push_str(topic);
+                }
+
+                if combined_text.contains("panicked")
+                    || combined_text.contains("Error")
+                    || combined_text.contains("Trap")
+                {
+                    // Ignore known Rust stdlib wrappers commonly seen in Backtrace/Diagnostic events
+                    if combined_text.contains("core/src/panicking.rs")
+                        || combined_text.contains("core::panicking")
+                        || combined_text.contains("rust_begin_unwind")
+                        || combined_text.contains("std::rt::lang_start")
+                        || combined_text.contains("compiler_builtins")
+                        || combined_text.contains("rustc_std_workspace")
+                    {
+                        continue;
+                    }
+
+                    // Look for common user paths (like src/lib.rs, etc)
+                    if combined_text.contains(".rs") && !combined_text.contains("soroban-env-host")
+                    {
+                        user_panic_point = Some(combined_text.replace("\"", ""));
+                        // Break after finding the first valid panic point so we don't overwrite it with deeper arbitrary ones
+                        break;
+                    }
+                }
+            }
+
+            let details = if let Some(ref point) = user_panic_point {
+                format!(
+                    "Contract execution failed with host error: {:?}. Panic point: {}",
+                    host_error, point
+                )
+            } else {
+                format!(
+                    "Contract execution failed with host error: {:?}",
+                    host_error
+                )
+            };
+
             let structured_error = StructuredError {
                 error_type: "HostError".to_string(),
                 message: format!("{:?}", host_error),
-                details: Some(format!(
-                    "Contract execution failed with host error: {:?}",
-                    host_error
-                )),
+                details: Some(details),
             };
 
             let response = SimulationResponse {
                 status: "error".to_string(),
                 error: Some(serde_json::to_string(&structured_error).unwrap()),
-                events: vec![],
-                diagnostic_events: vec![],
-                categorized_events: vec![],
+                events,
+                diagnostic_events,
+                categorized_events,
                 logs: vec![],
                 flamegraph: None,
                 optimization_report: None,
                 budget_usage: None,
-                source_location: None,
+                source_location: user_panic_point,
             };
             println!("{}", serde_json::to_string(&response).unwrap());
         }
