@@ -1,9 +1,12 @@
 // Copyright 2025 Erst Users
 // SPDX-License-Identifier: Apache-2.0
 
+#![allow(unused_imports, unused_variables, clippy::useless_format)]
+
 mod config;
 mod gas_optimizer;
 mod runner;
+mod source_map_cache;
 mod source_mapper;
 mod vm;
 mod types;
