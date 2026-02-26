@@ -45,7 +45,9 @@ Get started with 'erst debug --help' or visit the documentation.`,
 			return err
 		}
 
-		// Check for updates asynchronously (non-blocking)
+		// Show "Upgrade available" banner from last run's cached check (non-blocking)
+		updater.ShowBannerFromCache(Version)
+		// Ping version endpoint asynchronously for next run
 		checkForUpdatesAsync()
 
 		return nil
