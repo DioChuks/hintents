@@ -192,7 +192,7 @@ fn categorize_events(events: &soroban_env_host::events::Events) -> Vec<Categoriz
 
 /// Main entry point for the erst simulator.
 ///
-/// Reads a JSON `SimulationRequest` from stdin, 
+/// Reads a JSON `SimulationRequest` from stdin,
 /// initializes a Soroban host environment, and outputs a JSON
 /// `SimulationResponse` with simulation results or errors.
 ///
@@ -209,15 +209,11 @@ fn main() {
 
     // Read JSON from Stdin
     let mut buffer = String::new();
-    if let Err(e) = std::io::stdin().read_to_string(&mut buffer) {
-        let err_msg = format!("Failed to read stdin: {}", e);
+    if let Err(e) = io::stdin().read_to_string(&mut buffer) {
+        let err_msg = format!("Failed to read stdin: {e}");
         let res = SimulationResponse {
             status: "error".to_string(),
             error: Some(err_msg.clone()),
-    if let Err(e) = io::stdin().read_to_string(&mut buffer) {
-        let res = SimulationResponse {
-            status: "error".to_string(),
-            error: Some(format!("Failed to read stdin: {e}")),
             events: vec![],
             diagnostic_events: vec![],
             categorized_events: vec![],
@@ -611,14 +607,7 @@ fn main() {
             // Host error during execution (e.g., contract trap, validation failure)
             let error_msg = format!("{:?}", host_error);
             let decoded_msg = decode_error(&error_msg);
-            
-            let structured_error = StructuredError {
-                error_type: "HostError".to_string(),
-                message: decoded_msg.clone(),
-                details: Some(format!(
-                    "Contract execution failed with host error: {}",
-                    decoded_msg
-                )),
+
             let error_debug = format!("{:?}", host_error);
             let wasm_trace = WasmStackTrace::from_host_error(&error_debug);
 
@@ -746,7 +735,7 @@ fn main() {
 
             let error_msg = format!("{:?}", host_error);
             let wasm_offset = extract_wasm_offset(&error_msg);
-            
+
             let source_location = if let (Some(offset), Some(mapper)) = (wasm_offset, &source_mapper) {
                 mapper.map_wasm_offset_to_source(offset)
             } else {
@@ -819,7 +808,7 @@ fn extract_wasm_offset(error_msg: &str) -> Option<u64> {
     // Look for patterns like "@ 0x[HEX]" in the error message
     // Soroban/Wasmi errors often contain stack traces like:
     // "  0: func[42] @ 0xa3c"
-    
+
     for line in error_msg.lines() {
         if let Some(pos) = line.find("@ 0x") {
             let hex_part = &line[pos + 4..];
@@ -909,6 +898,8 @@ mod tests {
     fn test_decode_unreachable() {
         let msg = decode_error("wasm trap: unreachable");
         assert!(msg.contains("VM Trap: Unreachable"));
+    }
+
     fn test_enforce_soroban_compatibility_rejects_floats() {
         let wat = r#"
             (module
